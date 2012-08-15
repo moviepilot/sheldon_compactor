@@ -49,8 +49,12 @@ public class SheldonEdgePreprocessor
     private boolean mergeEdge(final EdgeEvent event, final String typeName,
                               final String fromTypeName, final RelationshipType toType, final TLongSet seenPairs) {
 
-        if (toType.name().equals(typeName)) {
-            Toolbox.isNewPair(seenPairs, event.srcId, event.dstId);
+        final String toTypeName = toType.name();
+        if (toTypeName.equals(typeName)) {
+            if (! Toolbox.isNewPair(seenPairs, event.srcId, event.dstId)) {
+                event.action = PropertyContainerEvent.Action.DELETE;
+                getProgressor().tick("ignore_" + toTypeName);
+            }
             return true;
         }
         if (fromTypeName.equals(typeName)) {
@@ -71,8 +75,10 @@ public class SheldonEdgePreprocessor
     public void modifyMap(TObjectLongMap<String> modMap) {
         modMap.put("convert_" + FEATURED_STORIES_SUBSCRIPTIONS_KEY, 10000);
         modMap.put("ignore_" + FEATURED_STORIES_SUBSCRIPTIONS_KEY, 10000);
+        modMap.put("ignore_" + ALL_STORIES_SUBSCRIPTIONS_KEY, 10000);
         modMap.put("convert_" + FEATURED_STORIES_RELATED_TOS_KEY, 10000);
         modMap.put("ignore_" + FEATURED_STORIES_RELATED_TOS_KEY, 10000);
+        modMap.put("ignore_" + ALL_STORIES_RELATED_TOS_KEY, 10000);
     }
 
 }
