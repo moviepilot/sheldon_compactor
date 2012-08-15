@@ -26,7 +26,7 @@ As a result, your database gets way smaller.
 How it does that
 ----------------
 
-Compactor uses the high performance concurreny framework disruptor. If you 
+Compactor uses the high performance concurrency framework disruptor. If you
 have to touch the code, make sure you understand disruptor before doing so.
 
 Basically compactor runs in two phases, one for nodes, and one for edges.
