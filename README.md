@@ -6,7 +6,7 @@ Compactor
 
      # run with enough RAM by setting $MAVEN_OPTS or 
      # use default settings from the script if you have (32+db size)G machine
-     ./java_compactor --mode GLOPS --config propsFile --source oldStoreDir --target newStoreDir
+     ./sheldon_compactor --mode GLOPS --config propsFile --source oldStoreDir --target newStoreDir
 
      # 
      # for mp.com users only; this serves as an example to other uses
