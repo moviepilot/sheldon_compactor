@@ -24,8 +24,16 @@ public class Toolbox {
 
     public static long intint2long(final int a, final int b) {
         final long long_a = ((long)a) << Integer.SIZE;
-        final long long_b = ((long)b);
-        return long_a & long_b;
+        final long long_b = ((long)b)  & 0xFFFFFFFFL;
+        return long_a | long_b;
+    }
+
+    public static int long2int1(final long value) {
+        return (int) (value >> Integer.SIZE);
+    }
+
+    public static int long2int0(final long value) {
+        return (int) value;
     }
 
     public static int long2int(final long value) {
