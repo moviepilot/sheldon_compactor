@@ -38,9 +38,9 @@ public class GlopsCompactorBuilder implements CompactorBuilder {
         modMap.put("node_delete", dotNodes);
         modMap.put("edge_read", dotEdges);
         modMap.put("edge_write", dotEdges);
-        modMap.put("edge_create", dotNodes);
-        modMap.put("edge_update", dotNodes);
-        modMap.put("edge_delete", dotNodes);
+        modMap.put("edge_create", dotEdges);
+        modMap.put("edge_update", dotEdges);
+        modMap.put("edge_delete", dotEdges);
         modMap.put("clean_ok", config.getDotOk());
 
         // Iterators for input

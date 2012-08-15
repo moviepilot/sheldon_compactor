@@ -204,7 +204,7 @@ public final class Compactor implements Runnable {
                             break;
                         case DELETE:
                             getProgressor().tick("node_delete");
-                            // nothing
+                            break;
                         default:
                             throw new IllegalStateException("Unknown update mode");
                     }
@@ -245,7 +245,7 @@ public final class Compactor implements Runnable {
                             break;
                         case DELETE:
                             getProgressor().tick("edge_delete");
-                            // nothing
+                            break;
                         default:
                             throw new IllegalStateException("Unknown update mode");
                     }
