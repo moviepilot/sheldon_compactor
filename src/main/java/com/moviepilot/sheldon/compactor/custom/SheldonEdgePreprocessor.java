@@ -54,12 +54,15 @@ public class SheldonEdgePreprocessor
             return true;
         }
         if (fromTypeName.equals(typeName)) {
-            if (Toolbox.isNewPair(seenPairs, event.srcId, event.dstId)) {
+            if (   (event.action != PropertyContainerEvent.Action.DELETE)
+                && Toolbox.isNewPair(seenPairs, event.srcId, event.dstId)) {
                 event.type = toType;
-                getProgressor().tick(fromTypeName);
+                getProgressor().tick("convert_" + fromTypeName);
             }
-            else
+            else {
                 event.action = PropertyContainerEvent.Action.DELETE;
+                getProgressor().tick("ignore_" + fromTypeName);
+            }
             return true;
         }
         return false;

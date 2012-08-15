@@ -6,6 +6,10 @@ import com.moviepilot.sheldon.compactor.util.Progressor;
 import gnu.trove.map.TMap;
 import gnu.trove.map.hash.THashMap;
 
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 /**
  * PropertyContainerEvent
  *
@@ -17,7 +21,7 @@ import gnu.trove.map.hash.THashMap;
 public class PropertyContainerEvent {
 
     public static enum Action {
-        CREATE, DELETE, UPDATE
+        CREATE, UPDATE, DELETE
     }
 
     public Action action;
@@ -69,12 +73,22 @@ public class PropertyContainerEvent {
             try {
                 System.err.println(toString());
             }
-            catch (RuntimeException e) {
-                System.err.println(e);  // gulp
+            catch (final RuntimeException e) {
+                // gulp
+                System.err.println(e);
+                e.printStackTrace(System.err);
             }
             progressor.tick("clean_failed");
         }
-        reset();
+        try {
+            reset();
+        }
+        catch (final RuntimeException e) {
+            System.err.println(e);
+            e.printStackTrace(System.err);
+            // This is too bad to continue as the event may remain in a dirty state
+            System.exit(1);
+        }
     }
 
     protected void reset() {
@@ -90,12 +104,23 @@ public class PropertyContainerEvent {
 
     @Override
     public String toString() {
-        return getClass().getName() +
-               "{" +
-                "id=" + id +
-                ", props=" + props +
-                ", action=" + action +
-                ", failure=" + failure +
-                '}';
+        final StringWriter stringWriter = new StringWriter();
+        final PrintWriter printWriter = new PrintWriter(stringWriter);
+
+        printWriter
+                .append(getClass().getName())
+                .append("{").append("id=").append(Long.toString(id));
+
+        if (failure == null) {
+            printWriter.append(", props=").append(props.toString())
+                        .append(", action=").append(action.toString());
+        }
+        else {
+            printWriter.append(", failure=").append(failure.toString());
+            printWriter.append(", trace=\n");
+            failure.printStackTrace(printWriter);
+        }
+        printWriter.append("}");
+        return stringWriter.toString();
     }
 }
