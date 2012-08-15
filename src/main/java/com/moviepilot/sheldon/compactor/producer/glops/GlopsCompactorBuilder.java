@@ -28,7 +28,7 @@ public class GlopsCompactorBuilder implements CompactorBuilder {
     public Compactor build(final Config config) {
 
         // Map that tells the compactor how often to print progress information
-        final TObjectLongMap<String> modMap = Progressor.makeCountMap();
+        final TObjectLongMap<String> modMap = config.getModMap();
         final long dotNodes = config.getDotNodes();
         final long dotEdges = config.getDotEdges();
         modMap.put("node_read", dotNodes);

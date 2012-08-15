@@ -16,7 +16,7 @@ public class SheldonEdgeIndexer extends SheldonIndexer<EdgeEvent> implements Edg
     private  BatchInserterIndex edgeIndex;
 
     public void setup(final Config config) {
-        config.getTargetIndexProvider().relationshipIndex("sheldon_connection", MapUtil.stringMap("type", "exact"));
+        edgeIndex = config.getTargetIndexProvider().relationshipIndex("sheldon_connection", MapUtil.stringMap("type", "exact"));
     }
 
     public void flush() {

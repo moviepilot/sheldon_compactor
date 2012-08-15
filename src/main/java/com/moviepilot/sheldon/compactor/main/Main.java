@@ -274,11 +274,11 @@ public final class Main {
         public Map<String, String> convert(final String value) {
             try {
                 final FileReader fileReader = new FileReader(value);
-                if (value.endsWith(".yaml")) {
+                if (value.endsWith(".yaml") || value.endsWith(".yml")) {
                     return toStringStringMap(new Yaml().loadAs(fileReader, Map.class));
 
                 }
-                if (value.endsWith(".properties")) {
+                if (value.endsWith(".properties") || value.endsWith(".props")) {
                     final Properties props = new Properties();
                     props.load(fileReader);
                     return toStringStringMap(props);

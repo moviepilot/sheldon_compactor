@@ -15,7 +15,7 @@ public class SheldonNodeIndexer extends SheldonIndexer<NodeEvent> implements Nod
     private BatchInserterIndex nodeIndex;
 
     public void setup(final Config config) {
-        config.getTargetIndexProvider().relationshipIndex("sheldon_node", MapUtil.stringMap("action", "exact"));
+        nodeIndex = config.getTargetIndexProvider().relationshipIndex("sheldon_node", MapUtil.stringMap("type", "exact"));
     }
 
     public void flush() {
