@@ -22,17 +22,17 @@ public class SheldonEdgePreprocessor
     public static final String ALL_STORIES_SUBSCRIPTIONS_KEY = "all_stories_subscriptions";
     public static final String FEATURED_STORIES_SUBSCRIPTIONS_KEY = "featured_stories_subscriptions";
 
-    public static final String ALL_STORIES_RELATED_TOS_KEY = "all_stories_related_tos";
-    public static final String FEATURED_STORIES_RELATED_TOS_KEY = "featured_stories_related_tos";
+    // public static final String ALL_STORIES_RELATED_TOS_KEY = "all_stories_related_tos";
+    // public static final String FEATURED_STORIES_RELATED_TOS_KEY = "featured_stories_related_tos";
 
     public static final DynamicRelationshipType ALL_STORIES_SUBSCRIPTIONS_TYPE
             = DynamicRelationshipType.withName(ALL_STORIES_SUBSCRIPTIONS_KEY);
 
-    public static final DynamicRelationshipType ALL_STORIES_RELATED_TOS_TYPE
-            = DynamicRelationshipType.withName(ALL_STORIES_RELATED_TOS_KEY);
+    // public static final DynamicRelationshipType ALL_STORIES_RELATED_TOS_TYPE
+    //        = DynamicRelationshipType.withName(ALL_STORIES_RELATED_TOS_KEY);
 
     private TLongSet subscriptionPairs = new TLongHashSet();
-    private TLongSet relatedPairs      = new TLongHashSet();
+    // private TLongSet relatedPairs      = new TLongHashSet();
 
     @SuppressWarnings("UnnecessaryReturnStatement")
     @Override
@@ -41,9 +41,10 @@ public class SheldonEdgePreprocessor
         if (mergeEdge(event, typeName,
                 FEATURED_STORIES_SUBSCRIPTIONS_KEY, ALL_STORIES_SUBSCRIPTIONS_TYPE, subscriptionPairs))
             return;
-        if (mergeEdge(event, typeName,
-                FEATURED_STORIES_RELATED_TOS_KEY, ALL_STORIES_RELATED_TOS_TYPE, relatedPairs))
-            return;
+
+        // if (mergeEdge(event, typeName,
+        //         FEATURED_STORIES_RELATED_TOS_KEY, ALL_STORIES_RELATED_TOS_TYPE, relatedPairs))
+        //    return;
     }
 
     private boolean mergeEdge(final EdgeEvent event, final String typeName,
@@ -76,9 +77,10 @@ public class SheldonEdgePreprocessor
         modMap.put("convert_" + FEATURED_STORIES_SUBSCRIPTIONS_KEY, 10000);
         modMap.put("ignore_" + FEATURED_STORIES_SUBSCRIPTIONS_KEY, 10000);
         modMap.put("ignore_" + ALL_STORIES_SUBSCRIPTIONS_KEY, 10000);
-        modMap.put("convert_" + FEATURED_STORIES_RELATED_TOS_KEY, 10000);
-        modMap.put("ignore_" + FEATURED_STORIES_RELATED_TOS_KEY, 10000);
-        modMap.put("ignore_" + ALL_STORIES_RELATED_TOS_KEY, 10000);
+
+        // modMap.put("convert_" + FEATURED_STORIES_RELATED_TOS_KEY, 10000);
+        // modMap.put("ignore_" + FEATURED_STORIES_RELATED_TOS_KEY, 10000);
+        // modMap.put("ignore_" + ALL_STORIES_RELATED_TOS_KEY, 10000);
     }
 
 }
