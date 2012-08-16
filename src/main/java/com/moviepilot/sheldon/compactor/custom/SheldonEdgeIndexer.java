@@ -26,6 +26,10 @@ public class SheldonEdgeIndexer extends SheldonIndexer<EdgeEvent> implements Edg
     protected void setupEntry(final IndexEntry indexEntry) {
         if (indexEntry.index == null)
             indexEntry.index = edgeIndex;
+        else {
+            if (indexEntry.index != edgeIndex)
+                throw new IllegalStateException("Invalid index entry");
+        }
     }
 
     public void flush() {

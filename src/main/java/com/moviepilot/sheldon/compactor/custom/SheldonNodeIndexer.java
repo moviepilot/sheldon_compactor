@@ -25,6 +25,10 @@ public class SheldonNodeIndexer extends SheldonIndexer<NodeEvent> implements Nod
     protected void setupEntry(final IndexEntry indexEntry) {
         if (indexEntry.index == null)
             indexEntry.index = nodeIndex;
+        else {
+            if (indexEntry.index != nodeIndex)
+                throw new IllegalStateException("Invalid index entry");
+        }
     }
 
     public void flush() {
