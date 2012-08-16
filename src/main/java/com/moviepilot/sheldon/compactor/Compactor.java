@@ -57,8 +57,8 @@ public final class Compactor {
 
     public void copy(final Kind kind) {
         switch (kind) {
-            case NODE: copyNodes(config.getOptNodeHandler(), config.getOptNodeIndexer());
-            case EDGE: copyEdges(config.getOptEdgeHandler(), config.getOptEdgeIndexer());
+            case NODE: copyNodes(config.getOptNodeHandler(), config.getOptNodeIndexer()); break;
+            case EDGE: copyEdges(config.getOptEdgeHandler(), config.getOptEdgeIndexer()); break;
             default:
                 throw new IllegalArgumentException("Invalid kind");
         }
