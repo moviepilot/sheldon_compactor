@@ -24,6 +24,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import static com.moviepilot.sheldon.compactor.handler.PropertyContainerEventHandler.*;
+import static com.moviepilot.sheldon.compactor.handler.PropertyContainerEventHandler.Kind.*;
+
 /**
  * Plain runner for the compactor
  *
@@ -32,8 +35,29 @@ import java.util.Properties;
  */
 public final class Main {
 
-    public static enum Mode {
-        GLOPS // plain neo4j global iterators
+    public enum Mode {
+        // plain good old neo4j global iterators
+        GLOPS;
+
+        /* Ideas:
+
+         RAW    - Use store file directly
+         ONLINE - Use online backup
+         PAR    - Use max id to chunk id space for parallel processing
+
+         */
+
+        public abstract static class Runner {
+            public final Mode mode;
+            protected final Config config;
+
+            protected Runner(final Mode mode, final Config config) {
+                this.mode   = mode;
+                this.config = config;
+            }
+
+            public abstract int run();
+        }
     }
 
     @Parameter(names = "--mode", description = "Operation mode (supported: GLOPS)",
@@ -74,7 +98,7 @@ public final class Main {
     private int ringSize = Defaults.RING_SIZE;
 
     @Parameter(names = "--index-flush-min-count", hidden = true,
-            description = "lof2 of minimal number of event before index flush")
+            description = "log2 of minimal number of event before index flush")
     private int indexFlushMinInterval = Defaults.INDEX_FLUSH_MIN_INTERVAL;
 
     @Parameter(names = "--index-flush-max-count", hidden = true,
@@ -103,10 +127,28 @@ public final class Main {
     @Parameter(names = "--help", description = "Print usage information and exit", help = true)
     private boolean help = false;
 
+    public static void main(final String[] args) {
+        if (args.length == 0) {
+            System.err.println("Run with --help to get a list of required and supported parameters");
+            System.exit(1);
+        }
+        final Main main             = new Main();
+        final JCommander jCommander = new JCommander(main, args);
+
+        if (main.help) {
+            final StringBuilder builder = new StringBuilder();
+            jCommander.usage(builder);
+            System.err.print(builder.toString());
+            System.exit(2);
+        }
+
+        System.exit(main.run());
+    }
+
     public int run() {
         verifyState();
 
-        // setup targetStoreDir database
+        // setup targetStoreDir database *and* lucene index
         final BatchInserter targetDb                = BatchInserters.inserter(targetStoreDir.getAbsolutePath(), props);
         final LuceneBatchInserterIndexProvider prov = new LuceneBatchInserterIndexProvider(targetDb);
         final Config config                         = makeCompactorConfig(targetDb, prov);
@@ -114,14 +156,12 @@ public final class Main {
         try {
             // build compactor according to mode
             switch(mode) {
-                case GLOPS:
-                    runGlopsCompactor(config);
-                    return 0;
-                default:
-                    throw new IllegalArgumentException("Unknown mode");
+                case GLOPS: return new GlopsModeRunner(config).run();
+                default: throw new IllegalArgumentException("Unknown mode");
             }
         }
         finally {
+            // shutdown both: index *and* db
             prov.shutdown();
             targetDb.shutdown();
         }
@@ -140,23 +180,12 @@ public final class Main {
         assert(indexFlushMinInterval <= indexFlushMaxInterval);
         assert(indexFlushMaxInterval <= ringSize);
 
+        // batch inserter wont come up if this is true
         props.put("allow_store_upgrade", "false");
     }
 
-    private void runGlopsCompactor(final Config config) {
-        // Load sourceStoreDir database
-        final EmbeddedGraphDatabase sourceDb = new EmbeddedGraphDatabase(sourceStoreDir.getAbsolutePath(), props);
-        try {
-            // Build compactor and fire it up
-            new GlopsCompactorBuilder(sourceDb).build(config).run();
-        }
-        finally {
-            sourceDb.shutdown();
-        }
-    }
-
     private Config makeCompactorConfig(final BatchInserter targetDb,
-                                                final LuceneBatchInserterIndexProvider indexProv) {
+                                       final LuceneBatchInserterIndexProvider indexProv) {
         final TObjectLongMap<String> modMap = Progressor.makeCountMap();
 
         return new Config() {
@@ -220,39 +249,46 @@ public final class Main {
                 return numProps;
             }
 
-            @Override
             public long getDotNodes() {
                 return dotNodes;
             }
 
-            @Override
             public long getDotEdges() {
                 return dotEdges;
             }
 
-            @Override
             public long getDotOk() {
                 return dotOk;
+            }
+
+            public long getDotKind(final Kind kind) {
+                switch (kind) {
+                    case NODE: return getDotNodes();
+                    case EDGE: return getDotEdges();
+                    default: return getDotOk();
+                }
             }
         };
     }
 
-    public static void main(final String[] args) {
-        if (args.length == 0) {
-            System.err.println("Run with --help to get a list of required and supported parameters");
-            System.exit(1);
-        }
-        final Main main             = new Main();
-        final JCommander jCommander = new JCommander(main, args);
+    final public class GlopsModeRunner extends Mode.Runner {
 
-        if (main.help) {
-            final StringBuilder builder = new StringBuilder();
-            jCommander.usage(builder);
-            System.err.print(builder.toString());
-            System.exit(2);
+        public GlopsModeRunner(final Config config) {
+            super(Mode.GLOPS, config);
         }
 
-        System.exit(main.run());
+        public int run() {
+            // Load sourceStoreDir database
+            final EmbeddedGraphDatabase sourceDb = new EmbeddedGraphDatabase(sourceStoreDir.getAbsolutePath(), props);
+            try {
+                // Build compactor and fire it up
+                new GlopsCompactorBuilder(sourceDb).build(config).run();
+            }
+            finally {
+                sourceDb.shutdown();
+            }
+            return 0;
+        }
     }
 
     final public static class ModeConverter implements IStringConverter<Mode> {

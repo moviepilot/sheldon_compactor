@@ -15,6 +15,9 @@ import org.neo4j.unsafe.batchinsert.BatchInserter;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static com.moviepilot.sheldon.compactor.handler.PropertyContainerEventHandler.Kind.EDGE;
+import static com.moviepilot.sheldon.compactor.handler.PropertyContainerEventHandler.Kind.NODE;
+
 /**
  * Copy all nodes and relationships of a neo4j database into a new database
  *
@@ -59,7 +62,7 @@ public final class Compactor implements Runnable {
     private void copyNodes(final NodeEventHandler optNodeHandler,
                              final NodeIndexer optNodeIndexer) {
         final Copier<NodeEvent, NodeEventHandler, NodeIndexer> copier =
-                new Copier<NodeEvent, NodeEventHandler, NodeIndexer>(config.getNumExtraNodeThreads()) {
+                new Copier<NodeEvent, NodeEventHandler, NodeIndexer>(NODE, config.getNumExtraNodeThreads()) {
 
                     protected EventFactory<NodeEvent> makeEventFactory() {
                         return new NodeEvent.Factory(config);
@@ -76,7 +79,7 @@ public final class Compactor implements Runnable {
     private void copyEdges(final EdgeEventHandler optEdgeHandler,
                              final EdgeIndexer optEdgeIndexer) {
         final Copier<EdgeEvent, EdgeEventHandler, EdgeIndexer> copier =
-                new Copier<EdgeEvent, EdgeEventHandler, EdgeIndexer>(config.getNumExtraEdgeThreads()) {
+                new Copier<EdgeEvent, EdgeEventHandler, EdgeIndexer>(EDGE, config.getNumExtraEdgeThreads()) {
 
                     protected EventFactory<EdgeEvent> makeEventFactory() {
                         return new EdgeEvent.Factory(config);
@@ -94,8 +97,10 @@ public final class Compactor implements Runnable {
             I extends PropertyContainerEventHandler<E> & Indexer<E>> {
 
         private final ExecutorService executorService;
+        private final PropertyContainerEventHandler.Kind kind;
 
-        Copier(final int numExtraThreads) {
+        Copier(final PropertyContainerEventHandler.Kind kind, final int numExtraThreads) {
+            this.kind            = kind;
             this.executorService = Executors.newFixedThreadPool(3 + numExtraThreads);
         }
 
@@ -148,7 +153,7 @@ public final class Compactor implements Runnable {
 
             if (optIndexer != null) {
                 optIndexer.setup(config);
-                handlerGroup = handlerGroup.then(optIndexer).then(new IndexWriter<E>(config));
+                handlerGroup = handlerGroup.then(optIndexer).then(new IndexWriter<E>(config, kind));
             }
 
             handlerGroup.then(propertyCleaner);
@@ -189,7 +194,6 @@ public final class Compactor implements Runnable {
             super(Compactor.this.modMap);
         }
 
-        @Override
         public void onEvent(NodeEvent event, long sequence, boolean endOfBatch) throws Exception {
             if (event.isOk()) {
                 try {
@@ -216,6 +220,10 @@ public final class Compactor implements Runnable {
                 }
             }
         }
+
+        public Kind getKind() {
+            return NODE;
+        }
     }
 
     /**
@@ -229,7 +237,6 @@ public final class Compactor implements Runnable {
             super(Compactor.this.modMap);
         }
 
-        @Override
         public void onEvent(EdgeEvent event, long sequence, boolean endOfBatch) throws Exception {
             if (event.isOk()) {
                 try {
@@ -256,6 +263,10 @@ public final class Compactor implements Runnable {
                     getProgressor().tick("edge_write_error");
                 }
             }
+        }
+
+        public Kind getKind() {
+            return EDGE;
         }
     }
 }

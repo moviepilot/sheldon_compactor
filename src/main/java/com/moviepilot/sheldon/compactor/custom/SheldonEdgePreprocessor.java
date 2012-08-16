@@ -4,6 +4,7 @@ import com.moviepilot.sheldon.compactor.ModMapModifier;
 import com.moviepilot.sheldon.compactor.event.EdgeEvent;
 import com.moviepilot.sheldon.compactor.event.PropertyContainerEvent;
 import com.moviepilot.sheldon.compactor.handler.EdgeEventHandler;
+import com.moviepilot.sheldon.compactor.handler.PropertyContainerEventHandler;
 import gnu.trove.map.TObjectLongMap;
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
@@ -83,4 +84,7 @@ public class SheldonEdgePreprocessor
         // modMap.put("ignore_" + ALL_STORIES_RELATED_TOS_KEY, 10000);
     }
 
+    public Kind getKind() {
+        return Kind.EDGE;
+    }
 }

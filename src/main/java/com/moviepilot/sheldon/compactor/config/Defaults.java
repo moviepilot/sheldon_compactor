@@ -12,7 +12,7 @@ public class Defaults {
     /**
      * Size of disruptor ring buffer used
      */
-    public static final int RING_SIZE = 18;
+    public static final int RING_SIZE = 19;
 
     /**
      * Number of events that have to be processed before flushing the index
@@ -22,12 +22,12 @@ public class Defaults {
     /**
      * Number of events that may get processed before the index must be flushed
      */
-    public static final int INDEX_FLUSH_MAX_INTERVAL = 14;
+    public static final int INDEX_FLUSH_MAX_INTERVAL = 15;
 
     /**
      * Default number of counts expected to be used by a Progressor
      */
-    public static final int DEFAULT_NUM_COUNTS = 8;
+    public static final int DEFAULT_NUM_COUNTS = 16;
 
     /**
      * Default number of properties on a node or an edge
@@ -37,7 +37,7 @@ public class Defaults {
     /**
      * Default number of properties that are indexed
      */
-    public static final int DEFAULT_NUM_INDEX_PROPS =  4;
+    public static final int DEFAULT_NUM_INDEX_PROPS =  2;
 
     /**
      * Report progress every DOT_NODES nodes written

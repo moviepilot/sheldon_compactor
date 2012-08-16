@@ -36,4 +36,6 @@ public interface Config {
     public long getDotNodes();
     public long getDotEdges();
     public long getDotOk();
+
+    public long getDotKind(final PropertyContainerEventHandler.Kind kind);
 }

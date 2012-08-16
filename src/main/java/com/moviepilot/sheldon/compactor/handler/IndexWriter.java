@@ -17,9 +17,11 @@ public final class IndexWriter<E extends PropertyContainerEvent> implements Prop
 
     private final TObjectLongCustomHashMap<BatchInserterIndex> counts;
     private final Config config;
+    private final Kind kind;
 
-    public IndexWriter(final Config config) {
+    public IndexWriter(final Config config, final Kind kind) {
         this.config = config;
+        this.kind   = kind;
         counts =
             new TObjectLongCustomHashMap<BatchInserterIndex>(
                     new IdentityHashingStrategy<BatchInserterIndex>(), config.getNumIndexEntries());
@@ -45,5 +47,7 @@ public final class IndexWriter<E extends PropertyContainerEvent> implements Prop
         }
     }
 
-
+    public Kind getKind() {
+        return kind;
+    }
 }

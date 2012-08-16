@@ -12,4 +12,8 @@ public class SheldonNodePreprocessor extends SheldonPreprocessor<NodeEvent> impl
 
     protected void onOkEvent(NodeEvent event, long sequence, boolean endOfBatch) {
     }
+
+    public Kind getKind() {
+        return Kind.NODE;
+    }
 }
