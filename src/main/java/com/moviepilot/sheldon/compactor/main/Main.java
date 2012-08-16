@@ -9,7 +9,6 @@ import com.moviepilot.sheldon.compactor.config.Defaults;
 import com.moviepilot.sheldon.compactor.handler.*;
 import com.moviepilot.sheldon.compactor.producer.glops.GlopsCompactorBuilder;
 import com.moviepilot.sheldon.compactor.util.Progressor;
-import com.sun.servicetag.SystemEnvironment;
 import gnu.trove.map.TObjectLongMap;
 import gnu.trove.map.hash.THashMap;
 import org.neo4j.graphdb.PropertyContainer;
