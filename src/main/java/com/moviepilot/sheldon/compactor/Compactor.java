@@ -105,6 +105,9 @@ public final class Compactor implements Runnable {
         }
 
         void copy(final PropertyContainerEventProducer<E> producer, final H optHandler, final I optIndexer) {
+            if (optIndexer != null)
+                optIndexer.setup(config);
+
             // allow optional handlers to customize the mod map
             setupModMap(optHandler);
             setupModMap(optIndexer);
@@ -151,10 +154,8 @@ public final class Compactor implements Runnable {
                 handlerGroup = handlerGroup.then(makeWriter());
             }
 
-            if (optIndexer != null) {
-                optIndexer.setup(config);
+            if (optIndexer != null)
                 handlerGroup = handlerGroup.then(optIndexer).then(new IndexWriter<E>(config, kind));
-            }
 
             handlerGroup.then(propertyCleaner);
 
