@@ -11,6 +11,8 @@ import com.moviepilot.sheldon.compactor.config.Config;
  */
 public final class NodeEvent extends PropertyContainerEvent {
 
+    public boolean referenceNode = false;
+
     public NodeEvent(final Config config) {
         super(config);
     }

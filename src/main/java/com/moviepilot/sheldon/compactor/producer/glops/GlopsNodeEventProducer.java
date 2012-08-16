@@ -26,7 +26,7 @@ public class GlopsNodeEventProducer extends PropertyContainerEventProducer<NodeE
 
     public void produce(final Disruptor<NodeEvent> disruptor, final Progressor progressor) {
         // event translator
-        final NodeEventTranslator trans = new NodeEventTranslator(config, progressor);
+        final NodeEventTranslator trans = new NodeEventTranslator(config, progressor, src.getReferenceNode().getId());
 
         // produce node events
         for (Node node : GlobalGraphOperations.at(src).getAllNodes()) {

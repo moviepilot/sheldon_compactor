@@ -19,9 +19,6 @@ public class GlopsCompactorBuilder implements CompactorBuilder {
     private final EmbeddedGraphDatabase sourceDb;
 
     public GlopsCompactorBuilder(final EmbeddedGraphDatabase sourceDb) {
-        // We have to insist on this
-        assert Defaults.REFERENCE_NODE_ID == sourceDb.getReferenceNode().getId();
-
         this.sourceDb = sourceDb;
     }
 

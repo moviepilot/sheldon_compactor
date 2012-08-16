@@ -12,7 +12,7 @@ public class Defaults {
     /**
      * Size of disruptor ring buffer used
      */
-    public static final int RING_SIZE = 19;
+    public static final int RING_SIZE = 18;
 
     /**
      * Number of events that have to be processed before flushing the index
@@ -22,7 +22,7 @@ public class Defaults {
     /**
      * Number of events that may get processed before the index must be flushed
      */
-    public static final int INDEX_FLUSH_MAX_INTERVAL = 15;
+    public static final int INDEX_FLUSH_MAX_INTERVAL = 14;
 
     /**
      * Default number of counts expected to be used by a Progressor
@@ -37,7 +37,7 @@ public class Defaults {
     /**
      * Default number of properties that are indexed
      */
-    public static final int DEFAULT_NUM_INDEX_PROPS =  2;
+    public static final int DEFAULT_NUM_INDEX_PROPS =  4;
 
     /**
      * Report progress every DOT_NODES nodes written
@@ -53,9 +53,4 @@ public class Defaults {
      * Report progress every DOT_EDGES edges written
      */
     public static final int DOT_EDGES = 100000;
-
-    /**
-     * Id of the reference node created by neo4j in a fresh database
-     */
-    public static final long REFERENCE_NODE_ID = 0L;
 }

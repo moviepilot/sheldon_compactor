@@ -101,7 +101,7 @@ public final class Compactor implements Runnable {
 
         Copier(final PropertyContainerEventHandler.Kind kind, final int numExtraThreads) {
             this.kind            = kind;
-            this.executorService = Executors.newFixedThreadPool(3 + numExtraThreads);
+            this.executorService = Executors.newFixedThreadPool(4 + numExtraThreads);
         }
 
         void copy(final PropertyContainerEventProducer<E> producer, final H optHandler, final I optIndexer) {

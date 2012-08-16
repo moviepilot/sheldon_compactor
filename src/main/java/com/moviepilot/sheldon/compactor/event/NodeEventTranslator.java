@@ -16,16 +16,19 @@ import org.neo4j.graphdb.Node;
 public final class NodeEventTranslator extends PropertyContainerEventTranslator<Node, NodeEvent> {
 
     public static final String ERROR_NAME = "node_trans_error";
+    public final long refNodeId;
 
-    public NodeEventTranslator(final Config config, final Progressor aProgressor) {
+    public NodeEventTranslator(final Config config, final Progressor aProgressor, final long refNodeId) {
         super(config, aProgressor, ERROR_NAME);
+        this.refNodeId = refNodeId;
     }
 
     public void translateTo_(final NodeEvent event, long sequence) {
         final Node node = getContainer();
         event.id        = node.getId();
-        event.action    = event.id == Defaults.REFERENCE_NODE_ID ?
-                PropertyContainerEvent.Action.UPDATE : PropertyContainerEvent.Action.CREATE;
+        if (event.id == refNodeId)
+            event.referenceNode = true;
+        event.action    = PropertyContainerEvent.Action.CREATE;
         putAllContainerProperties(node, event.props);
     }
 }
