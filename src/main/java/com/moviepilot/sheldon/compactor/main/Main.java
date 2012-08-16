@@ -9,9 +9,12 @@ import com.moviepilot.sheldon.compactor.config.Defaults;
 import com.moviepilot.sheldon.compactor.handler.*;
 import com.moviepilot.sheldon.compactor.producer.glops.GlopsCompactorBuilder;
 import com.moviepilot.sheldon.compactor.util.Progressor;
+import com.sun.servicetag.SystemEnvironment;
 import gnu.trove.map.TObjectLongMap;
 import gnu.trove.map.hash.THashMap;
+import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
+import org.neo4j.tooling.GlobalGraphOperations;
 import org.neo4j.unsafe.batchinsert.BatchInserter;
 import org.neo4j.unsafe.batchinsert.BatchInserters;
 import org.neo4j.unsafe.batchinsert.LuceneBatchInserterIndexProvider;
@@ -21,6 +24,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
@@ -106,7 +110,7 @@ public final class Main {
     private int indexFlushMaxInterval = Defaults.INDEX_FLUSH_MAX_INTERVAL;
 
     @Parameter(names = "--num-index-entries", hidden = true)
-    private int numIndexEntries = Defaults.DEFAULT_NUM_INDEX_PROPS;
+    private int numIndexEntries = Defaults.DEFAULT_NUM_INDEX_ENTRIES;
 
     @Parameter(names = "--num-index-props", hidden = true)
     private int numIndexProps = Defaults.DEFAULT_NUM_INDEX_PROPS;
@@ -282,13 +286,37 @@ public final class Main {
             final EmbeddedGraphDatabase sourceDb = new EmbeddedGraphDatabase(sourceStoreDir.getAbsolutePath(), props);
             try {
                 // Build separate compactors to re-load the target db between stages
+                warmUp(sourceDb, Kind.NODE);
                 new GlopsCompactorBuilder(sourceDb).build(config).copy(Kind.NODE);
+                warmUp(sourceDb, Kind.EDGE);
                 new GlopsCompactorBuilder(sourceDb).build(config).copy(Kind.EDGE);
             }
             finally {
                 sourceDb.shutdown();
             }
             return 0;
+        }
+
+        @SuppressWarnings("WhileLoopReplaceableByForEach")
+        private void warmUp(final EmbeddedGraphDatabase sourceDb, final Kind kind) {
+            final Iterable<? extends PropertyContainer> iterable;
+
+            switch (kind) {
+                case NODE: iterable = GlobalGraphOperations.at(sourceDb).getAllNodes(); break;
+                case EDGE: iterable = GlobalGraphOperations.at(sourceDb).getAllRelationships(); break;
+                default:
+                    throw new IllegalArgumentException("Unsupported kind");
+            }
+
+            final Iterator<? extends PropertyContainer> iterator = iterable.iterator();
+            while (iterator.hasNext()) {
+                try {
+                    iterator.next();
+                }
+                catch (RuntimeException e) {
+                    System.err.println("Encountered broken record during warmup: " + e);
+                }
+            }
         }
     }
 

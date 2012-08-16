@@ -27,12 +27,17 @@ public class Defaults {
     /**
      * Default number of counts expected to be used by a Progressor
      */
-    public static final int DEFAULT_NUM_COUNTS = 16;
+    public static final int DEFAULT_NUM_COUNTS = 12;
 
     /**
      * Default number of properties on a node or an edge
      */
-    public static final int DEFAULT_NUM_PROPS = 32;
+    public static final int DEFAULT_NUM_PROPS = 42;
+
+    /**
+     * Default number of properties that are indexed
+     */
+    public static final int DEFAULT_NUM_INDEX_ENTRIES =  1;
 
     /**
      * Default number of properties that are indexed
@@ -40,14 +45,14 @@ public class Defaults {
     public static final int DEFAULT_NUM_INDEX_PROPS =  4;
 
     /**
-     * Report progress every DOT_NODES nodes written
-     */
-    public static final int DOT_NODES = 10000;
-
-    /**
      * Report progress every DOT_OK events cleared
      */
     public static final int DOT_OK = 50000;
+
+    /**
+     * Report progress every DOT_NODES nodes written
+     */
+    public static final int DOT_NODES = 10000;
 
     /**
      * Report progress every DOT_EDGES edges written
