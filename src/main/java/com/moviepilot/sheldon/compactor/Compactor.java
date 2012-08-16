@@ -15,6 +15,7 @@ import org.neo4j.unsafe.batchinsert.BatchInserter;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static com.moviepilot.sheldon.compactor.handler.PropertyContainerEventHandler.Kind;
 import static com.moviepilot.sheldon.compactor.handler.PropertyContainerEventHandler.Kind.EDGE;
 import static com.moviepilot.sheldon.compactor.handler.PropertyContainerEventHandler.Kind.NODE;
 
@@ -26,7 +27,7 @@ import static com.moviepilot.sheldon.compactor.handler.PropertyContainerEventHan
  * @author stefanp
  * @since 03.08.12
  */
-public final class Compactor implements Runnable {
+public final class Compactor {
 
     // Data sources
     private final PropertyContainerEventProducer<NodeEvent> nodeProducer;
@@ -54,9 +55,13 @@ public final class Compactor implements Runnable {
         this.modMap       = config.getModMap();
     }
 
-    public void run() {
-        copyNodes(config.getOptNodeHandler(), config.getOptNodeIndexer());
-        copyEdges(config.getOptEdgeHandler(), config.getOptEdgeIndexer());
+    public void copy(final Kind kind) {
+        switch (kind) {
+            case NODE: copyNodes(config.getOptNodeHandler(), config.getOptNodeIndexer());
+            case EDGE: copyEdges(config.getOptEdgeHandler(), config.getOptEdgeIndexer());
+            default:
+                throw new IllegalArgumentException("Invalid kind");
+        }
     }
 
     private void copyNodes(final NodeEventHandler optNodeHandler,
@@ -68,7 +73,7 @@ public final class Compactor implements Runnable {
                         return new NodeEvent.Factory(config);
                     }
 
-                    protected PropertyContainerEventHandler<NodeEvent> makeWriter() {
+                    protected AbstractPropertyContainerEventHandler<NodeEvent> makeWriter() {
                         return new NodeWriter();
                     }
                 };
@@ -85,7 +90,7 @@ public final class Compactor implements Runnable {
                         return new EdgeEvent.Factory(config);
                     }
 
-                    protected PropertyContainerEventHandler<EdgeEvent> makeWriter() {
+                    protected AbstractPropertyContainerEventHandler<EdgeEvent> makeWriter() {
                         return new EdgeWriter();
                     }
                 };
@@ -97,9 +102,12 @@ public final class Compactor implements Runnable {
             I extends PropertyContainerEventHandler<E> & Indexer<E>> {
 
         private final ExecutorService executorService;
-        private final PropertyContainerEventHandler.Kind kind;
+        private final Kind kind;
 
-        Copier(final PropertyContainerEventHandler.Kind kind, final int numExtraThreads) {
+        private AbstractPropertyContainerEventHandler<E> writer;
+        private IndexWriter<E> indexWriter;
+
+        Copier(final Kind kind, final int numExtraThreads) {
             this.kind            = kind;
             this.executorService = Executors.newFixedThreadPool(4 + numExtraThreads);
         }
@@ -129,10 +137,13 @@ public final class Compactor implements Runnable {
 
             // print progress count summary
             copyingProgressor.printAll();
+            writer.getProgressor().printAll();
             if (handlerProgressor != null)
                 handlerProgressor.printAll();
-            if (indexingProgressor != null)
+            if (indexingProgressor != null) {
                 indexingProgressor.printAll();
+                indexWriter.getProgressor().printAll();
+            }
             propertyCleaner.getProgressor().printAll();
         }
 
@@ -151,11 +162,11 @@ public final class Compactor implements Runnable {
             }
             else {
                 handlerGroup = disruptor.handleEventsWith(optHandler);
-                handlerGroup = handlerGroup.then(makeWriter());
+                handlerGroup = handlerGroup.then(writer = makeWriter());
             }
 
             if (optIndexer != null)
-                handlerGroup = handlerGroup.then(optIndexer).then(new IndexWriter<E>(config, kind));
+                handlerGroup = handlerGroup.then(optIndexer).then(indexWriter = new IndexWriter<E>(config, kind));
 
             handlerGroup.then(propertyCleaner);
 
@@ -181,7 +192,7 @@ public final class Compactor implements Runnable {
 
         protected abstract EventFactory<E> makeEventFactory();
 
-        protected abstract PropertyContainerEventHandler<E> makeWriter();
+        protected abstract AbstractPropertyContainerEventHandler<E> makeWriter();
     }
 
     /**

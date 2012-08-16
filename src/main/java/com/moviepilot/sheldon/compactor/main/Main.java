@@ -281,8 +281,9 @@ public final class Main {
             // Load sourceStoreDir database
             final EmbeddedGraphDatabase sourceDb = new EmbeddedGraphDatabase(sourceStoreDir.getAbsolutePath(), props);
             try {
-                // Build compactor and fire it up
-                new GlopsCompactorBuilder(sourceDb).build(config).run();
+                // Build separate compactors to re-load the target db between stages
+                new GlopsCompactorBuilder(sourceDb).build(config).copy(Kind.NODE);
+                new GlopsCompactorBuilder(sourceDb).build(config).copy(Kind.EDGE);
             }
             finally {
                 sourceDb.shutdown();

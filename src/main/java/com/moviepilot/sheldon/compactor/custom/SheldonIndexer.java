@@ -70,19 +70,26 @@ public abstract class SheldonIndexer<E extends PropertyContainerEvent>
     private void addXidEntry(final IndexEntry entry, final long xid) {
         setupEntry(entry);
         entry.props.put(SheldonConstants.EXTERNAL_ID_KEY, xid);
-        progressor.tick(getKind().lowercaseName() + "_index_xid");
+        progressor.tick(getXidTag());
     }
 
     private void addClassEntry(final IndexEntry entry, final String className) {
         setupEntry(entry);
         entry.props.put(SheldonConstants.CLASSNAME_KEY, className);
-        progressor.tick(getKind().lowercaseName() + "_index_class");
+        progressor.tick(getClassTag());
+    }
+
+    private String getXidTag() {
+        return getKind().lowercaseName() + "_index_xid";
+    }
+
+    private String getClassTag() {
+        return getKind().lowercaseName() + "_index_class";
     }
 
     public void modifyMap(final TObjectLongMap<String> modMap) {
         final Kind kind  = getKind();
-        final String tag = kind.lowercaseName();
-        modMap.put(tag + "_index_xid", config.getDotKind(kind));
-        modMap.put(tag + "_index_class", config.getDotKind(kind));
+        modMap.put(getXidTag(), config.getDotKind(kind));
+        modMap.put(getClassTag(), config.getDotKind(kind));
     }
 }

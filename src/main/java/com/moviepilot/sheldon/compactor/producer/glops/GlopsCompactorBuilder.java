@@ -3,11 +3,9 @@ package com.moviepilot.sheldon.compactor.producer.glops;
 import com.moviepilot.sheldon.compactor.Compactor;
 import com.moviepilot.sheldon.compactor.CompactorBuilder;
 import com.moviepilot.sheldon.compactor.config.Config;
-import com.moviepilot.sheldon.compactor.config.Defaults;
 import com.moviepilot.sheldon.compactor.event.EdgeEvent;
 import com.moviepilot.sheldon.compactor.event.NodeEvent;
 import com.moviepilot.sheldon.compactor.producer.PropertyContainerEventProducer;
-import com.moviepilot.sheldon.compactor.util.Progressor;
 import gnu.trove.map.TObjectLongMap;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 

@@ -14,17 +14,19 @@ public class IndexEntry {
         ADD, UPDATE_OR_ADD;
 
         public void write(final BatchInserterIndex index, final long id, final TMap<String,Object> props) {
-            switch (this) {
-                case ADD: index.add(id, props); break;
-                case UPDATE_OR_ADD: index.updateOrAdd(id, props); break;
-                default:
-                    throw new IllegalStateException("Should never be reached");
-            }
+            if (props.size() > 0)
+                switch (this) {
+                    case ADD: index.add(id, props); return;
+                    case UPDATE_OR_ADD: index.updateOrAdd(id, props); return;
+                    default:
+                        throw new IllegalStateException("Should never be reached");
+                }
         }
     }
 
-    public BatchInserterIndex index         = null;
-    public Mode mode                        = Mode.ADD;
+    public Mode mode = Mode.ADD;
+
+    public BatchInserterIndex index;
     public TMap<String, Object> props;
 
     public IndexEntry(final Config config) {
@@ -38,5 +40,11 @@ public class IndexEntry {
         mode.write(index, id, props);
 
         return true;
+    }
+
+    public void clear() {
+        mode  = Mode.ADD;
+        index = null;
+        props.clear();
     }
 }

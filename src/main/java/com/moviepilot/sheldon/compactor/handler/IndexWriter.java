@@ -13,13 +13,14 @@ import org.neo4j.unsafe.batchinsert.BatchInserterIndex;
  * @author stefanp
  * @since 06.08.2012
  */
-public final class IndexWriter<E extends PropertyContainerEvent> implements PropertyContainerEventHandler<E> {
+public final class IndexWriter<E extends PropertyContainerEvent> extends AbstractPropertyContainerEventHandler<E> {
 
     private final TObjectLongCustomHashMap<BatchInserterIndex> counts;
-    private final Config config;
     private final Kind kind;
+    private final Config config;
 
     public IndexWriter(final Config config, final Kind kind) {
+        super(config.getModMap());
         this.config = config;
         this.kind   = kind;
         counts =

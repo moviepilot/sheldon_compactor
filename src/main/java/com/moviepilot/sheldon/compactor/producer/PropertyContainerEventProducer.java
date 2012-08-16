@@ -13,7 +13,8 @@ import java.util.concurrent.ExecutorService;
 public abstract class PropertyContainerEventProducer<E extends PropertyContainerEvent> {
     public abstract void produce(final Disruptor<E> disruptor, final Progressor progressor);
 
-    public void run(final Disruptor<E> disruptor, final ExecutorService executorService,
+    public void run(final Disruptor<E> disruptor,
+                    final ExecutorService executorService,
                     final Progressor progressor) {
         disruptor.start();
 

@@ -94,9 +94,8 @@ public class PropertyContainerEvent {
     protected void reset() {
         props.clear();
 
-        for (final IndexEntry indexEntry : indexEntries) {
-            indexEntry.index = null;
-        }
+        for (final IndexEntry indexEntry : indexEntries)
+            indexEntry.clear();
 
         action  = null;
         failure = null;
