@@ -36,7 +36,7 @@ public final class IndexWriter<E extends PropertyContainerEvent> extends Abstrac
             for (final IndexEntry entry : indexEntries) {
                 if (entry.write(event.id))  {
                     flushIndex(entry.index, endOfBatch);
-                    getProgressor().tick(getKind() + "_write_index");
+                    getProgressor().tick(getKind().lowercaseName() + "_write_index");
                 }
             }
         }

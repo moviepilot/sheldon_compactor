@@ -28,7 +28,7 @@ public class GlopsCompactorBuilder implements CompactorBuilder {
         final long dotNodes = config.getDotNodes();
         modMap.put("node_read", dotNodes);
         modMap.put("node_write", dotNodes);
-        modMap.put("node_index_write", dotNodes);
+        modMap.put("node_write_index", dotNodes);
         modMap.put("node_create", dotNodes);
         modMap.put("node_update", dotNodes);
         modMap.put("node_delete", dotNodes);
@@ -36,7 +36,7 @@ public class GlopsCompactorBuilder implements CompactorBuilder {
         final long dotEdges = config.getDotEdges();
         modMap.put("edge_read", dotEdges);
         modMap.put("edge_write", dotEdges);
-        modMap.put("edge_index_write", dotEdges);
+        modMap.put("edge_write_index", dotEdges);
         modMap.put("edge_create", dotEdges);
         modMap.put("edge_update", dotEdges);
         modMap.put("edge_delete", dotEdges);
