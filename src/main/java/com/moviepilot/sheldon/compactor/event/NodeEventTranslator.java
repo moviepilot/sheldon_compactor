@@ -26,9 +26,12 @@ public final class NodeEventTranslator extends PropertyContainerEventTranslator<
     public void translateTo_(final NodeEvent event, long sequence) {
         final Node node = getContainer();
         event.id        = node.getId();
-        if (event.id == refNodeId)
+        if (event.id == refNodeId) {
             event.referenceNode = true;
-        event.action    = PropertyContainerEvent.Action.CREATE;
+            event.action = PropertyContainerEvent.Action.UPDATE;
+        }
+        else
+            event.action = PropertyContainerEvent.Action.CREATE;
         putAllContainerProperties(node, event.props);
     }
 }

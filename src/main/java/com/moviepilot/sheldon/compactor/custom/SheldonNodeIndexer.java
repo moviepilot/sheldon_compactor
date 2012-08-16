@@ -19,7 +19,7 @@ public class SheldonNodeIndexer extends SheldonIndexer<NodeEvent> implements Nod
     public void setup(final Config config) {
         super.setup(config);
         nodeIndex =
-            config.getTargetIndexProvider().relationshipIndex("sheldon_node", MapUtil.stringMap("type", "exact"));
+            config.getTargetIndexProvider().nodeIndex("sheldon_node", MapUtil.stringMap("type", "exact"));
     }
 
     protected void setupEntry(final IndexEntry indexEntry) {
