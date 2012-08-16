@@ -7,6 +7,8 @@ import gnu.trove.map.custom_hash.TObjectLongCustomHashMap;
 import gnu.trove.strategy.IdentityHashingStrategy;
 import org.neo4j.unsafe.batchinsert.BatchInserterIndex;
 
+import static com.moviepilot.sheldon.compactor.event.PropertyContainerEvent.Action.DELETE;
+
 /**
  * Handler for writing into the index
  *
@@ -29,11 +31,13 @@ public final class IndexWriter<E extends PropertyContainerEvent> extends Abstrac
     }
 
     public void onEvent(E event, long sequence, boolean endOfBatch) throws Exception {
-        if (event.isOk()) {
+        if (event.isOk() && (event.action != DELETE)) {
             final IndexEntry[] indexEntries = event.indexEntries;
             for (final IndexEntry entry : indexEntries) {
-                if (entry.write(event.id))
+                if (entry.write(event.id))  {
                     flushIndex(entry.index, endOfBatch);
+                    getProgressor().tick(getKind() + "_write_index");
+                }
             }
         }
     }

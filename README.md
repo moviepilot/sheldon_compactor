@@ -54,6 +54,13 @@ How to influence what gets done how
 * Edit the pre-processors and indexers as required
 
 
+Versions
+--------
+
+* Consider using the stable branch on github if you hit troubles
+* The pom version is not very telling; Usually it is kept in sync with internal versioning of mp.com; ignore for now
+
+
 Dependencies
 ------------
 

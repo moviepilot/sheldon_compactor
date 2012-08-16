@@ -24,18 +24,23 @@ public class GlopsCompactorBuilder implements CompactorBuilder {
 
         // Map that tells the compactor how often to print progress information
         final TObjectLongMap<String> modMap = config.getModMap();
+
         final long dotNodes = config.getDotNodes();
-        final long dotEdges = config.getDotEdges();
         modMap.put("node_read", dotNodes);
         modMap.put("node_write", dotNodes);
+        modMap.put("node_index_write", dotNodes);
         modMap.put("node_create", dotNodes);
         modMap.put("node_update", dotNodes);
         modMap.put("node_delete", dotNodes);
+
+        final long dotEdges = config.getDotEdges();
         modMap.put("edge_read", dotEdges);
         modMap.put("edge_write", dotEdges);
+        modMap.put("edge_index_write", dotEdges);
         modMap.put("edge_create", dotEdges);
         modMap.put("edge_update", dotEdges);
         modMap.put("edge_delete", dotEdges);
+
         modMap.put("clean_ok", config.getDotOk());
 
         // Iterators for input

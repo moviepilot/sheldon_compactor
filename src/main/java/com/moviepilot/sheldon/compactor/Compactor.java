@@ -157,16 +157,18 @@ public final class Compactor {
             final Disruptor<E> disruptor = new Disruptor<E>(makeEventFactory(), config.getRingSize(), executorService);
 
             EventHandlerGroup<E> handlerGroup;
+            writer = makeWriter();
             if (optHandler == null) {
-                handlerGroup = disruptor.handleEventsWith(makeWriter());
+                handlerGroup = disruptor.handleEventsWith(writer);
             }
             else {
-                handlerGroup = disruptor.handleEventsWith(optHandler);
-                handlerGroup = handlerGroup.then(writer = makeWriter());
+                handlerGroup = disruptor.handleEventsWith(optHandler).then(writer);
             }
 
-            if (optIndexer != null)
-                handlerGroup = handlerGroup.then(optIndexer).then(indexWriter = new IndexWriter<E>(config, kind));
+            if (optIndexer != null) {
+                indexWriter  = new IndexWriter<E>(config, kind);
+                handlerGroup = handlerGroup.then(optIndexer).then(indexWriter);
+            }
 
             handlerGroup.then(propertyCleaner);
 

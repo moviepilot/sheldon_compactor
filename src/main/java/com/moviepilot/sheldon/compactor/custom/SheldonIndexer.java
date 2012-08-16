@@ -9,6 +9,8 @@ import com.moviepilot.sheldon.compactor.util.Progressor;
 import com.moviepilot.sheldon.compactor.util.ProgressorHolder;
 import gnu.trove.map.TObjectLongMap;
 
+import static com.moviepilot.sheldon.compactor.event.PropertyContainerEvent.Action;
+
 /**
  * @author stefanp
  * @since 06.08.2012
@@ -24,7 +26,7 @@ public abstract class SheldonIndexer<E extends PropertyContainerEvent>
     }
 
     public void onEvent(final E event, final long sequence, final boolean endOfBatch) throws Exception {
-        if (event.isOk()) {
+        if (event.isOk() && (event.action != Action.DELETE)) {
             final String clazz          = getClassPropertyOf(event);
             final IndexEntry indexEntry = event.indexEntries[0];
             if (clazz != null) {
