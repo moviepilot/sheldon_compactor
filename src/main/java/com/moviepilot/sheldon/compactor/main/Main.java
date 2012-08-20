@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import static com.moviepilot.sheldon.compactor.handler.PropertyContainerEventHandler.*;
-import static com.moviepilot.sheldon.compactor.handler.PropertyContainerEventHandler.Kind.*;
 
 /**
  * Plain runner for the compactor
@@ -132,6 +131,14 @@ public final class Main {
     @Parameter(names = "--dot-ok", hidden = true)
     private int dotOk = Defaults.DOT_OK;
 
+    @Parameter(names = "--num-index-writers", description = "Number of index writer threads", hidden = true)
+    private int numIndexWriters = 1;
+
+    @Parameter(names = "--index-batch-size",
+            description = "log2 of batch size between index writer switch", hidden = true)
+    private int indexBatchSize = indexFlushMinInterval;
+
+
     @SuppressWarnings("FieldCanBeLocal")
     @Parameter(names = "--help", description = "Print usage information and exit", help = true)
     private boolean help = false;
@@ -187,7 +194,8 @@ public final class Main {
 
         assert(indexFlushMinInterval >= 0);
         assert(indexFlushMinInterval <= indexFlushMaxInterval);
-        assert(indexFlushMaxInterval <= ringSize);
+        assert(numIndexWriters >= 1);
+        assert(indexBatchSize > 0);
 
         // batch inserter wont come up if this is true
         props.put("allow_store_upgrade", "false");
@@ -208,6 +216,14 @@ public final class Main {
 
             public int getIndexFlushMaxInterval() {
                 return 1 << indexFlushMaxInterval;
+            }
+
+            public int getNumIndexWriters() {
+                return numIndexWriters;
+            }
+
+            public int getIndexBatchSize() {
+                return 1 << indexBatchSize;
             }
 
             public BatchInserter getTargetDatabase() {
@@ -239,11 +255,11 @@ public final class Main {
             }
 
             public int getNumExtraNodeThreads() {
-                return (optNodeEventHandler == null ? 0 : 1) + (optNodeIndexer == null ? 0 : 2);
+                return (optNodeEventHandler == null ? 0 : 1) + (optNodeIndexer == null ? 0 : 1 + getNumIndexWriters());
             }
 
             public int getNumExtraEdgeThreads() {
-                return (optEdgeEventHandler == null ? 0 : 1) + (optEdgeIndexer == null ? 0 : 2);
+                return (optEdgeEventHandler == null ? 0 : 1) + (optEdgeIndexer == null ? 0 : 1 + getNumIndexWriters());
             }
 
             public int getNumIndexEntries() {

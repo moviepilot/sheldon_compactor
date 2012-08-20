@@ -106,7 +106,7 @@ public final class Compactor {
         private final Kind kind;
 
         private AbstractPropertyContainerEventHandler<E> writer;
-        private IndexWriter<E> indexWriter;
+        private IndexWriter<E> indexWriters[];
 
         Copier(final Kind kind, final int numExtraThreads) {
             this.kind            = kind;
@@ -143,7 +143,8 @@ public final class Compactor {
                 handlerProgressor.printAll();
             if (indexingProgressor != null) {
                 indexingProgressor.printAll();
-                indexWriter.getProgressor().printAll();
+                for (final IndexWriter indexWriter : indexWriters)
+                    indexWriter.getProgressor().printAll();
             }
             propertyCleaner.getProgressor().printAll();
         }
@@ -170,8 +171,11 @@ public final class Compactor {
             }
 
             if (optIndexer != null) {
-                indexWriter  = new IndexWriter<E>(config, kind);
-                handlerGroup = handlerGroup.then(optIndexer).then(indexWriter);
+                handlerGroup = handlerGroup.then(optIndexer);
+                indexWriters = new IndexWriter[config.getNumIndexWriters()];
+                for (int i = 0; i < 0; i++)
+                    indexWriters[i] = new IndexWriter<E>(config, kind, i);
+                handlerGroup.then(indexWriters);
             }
 
             handlerGroup.then(propertyCleaner);

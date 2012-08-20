@@ -12,17 +12,17 @@ public class Defaults {
     /**
      * Size of disruptor ring buffer used
      */
-    public static final int RING_SIZE = 13;
+    public static final int RING_SIZE = 18;
 
     /**
      * Number of events that have to be processed before flushing the index
      */
-    public static final int INDEX_FLUSH_MIN_INTERVAL = 10;
+    public static final int INDEX_FLUSH_MIN_INTERVAL = 14;
 
     /**
      * Number of events that may get processed before the index must be flushed
      */
-    public static final int INDEX_FLUSH_MAX_INTERVAL = 12;
+    public static final int INDEX_FLUSH_MAX_INTERVAL = 16;
 
     /**
      * Default number of counts expected to be used by a Progressor

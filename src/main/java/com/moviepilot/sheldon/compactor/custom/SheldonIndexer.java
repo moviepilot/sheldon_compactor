@@ -3,6 +3,7 @@ package com.moviepilot.sheldon.compactor.custom;
 import com.moviepilot.sheldon.compactor.ModMapModifier;
 import com.moviepilot.sheldon.compactor.config.Config;
 import com.moviepilot.sheldon.compactor.event.IndexEntry;
+import com.moviepilot.sheldon.compactor.event.IndexSwapper;
 import com.moviepilot.sheldon.compactor.event.PropertyContainerEvent;
 import com.moviepilot.sheldon.compactor.handler.Indexer;
 import com.moviepilot.sheldon.compactor.util.Progressor;
@@ -20,6 +21,7 @@ public abstract class SheldonIndexer<E extends PropertyContainerEvent>
 
     protected Progressor progressor;
     protected Config config;
+    protected IndexSwapper swapper;
 
     public void setup(final Config config) {
         this.config = config;
@@ -31,16 +33,18 @@ public abstract class SheldonIndexer<E extends PropertyContainerEvent>
             final IndexEntry indexEntry = event.indexEntries[0];
             if (clazz != null) {
                 final String trimmedClazz = clazz.trim();
-                if (trimmedClazz.length() > 0)
+                if (trimmedClazz.length() > 0) {
+                    swapper.onEntry(indexEntry, sequence, endOfBatch);
                     addClassEntry(indexEntry, trimmedClazz);
+                }
             }
 
-            if (hasXidProperty(event))
+            if (hasXidProperty(event)) {
+                swapper.onEntry(indexEntry, sequence, endOfBatch);
                 addXidEntry(indexEntry, getXidPropertyOf(event));
+            }
         }
     }
-
-    protected abstract void setupEntry(final IndexEntry indexEntry);
 
     public Progressor getProgressor() {
         return progressor;
@@ -70,13 +74,11 @@ public abstract class SheldonIndexer<E extends PropertyContainerEvent>
     }
 
     private void addXidEntry(final IndexEntry entry, final long xid) {
-        setupEntry(entry);
         entry.props.put(SheldonConstants.EXTERNAL_ID_KEY, xid);
         progressor.tick(getXidTag());
     }
 
     private void addClassEntry(final IndexEntry entry, final String className) {
-        setupEntry(entry);
         entry.props.put(SheldonConstants.CLASSNAME_KEY, className);
         progressor.tick(getClassTag());
     }
@@ -87,6 +89,10 @@ public abstract class SheldonIndexer<E extends PropertyContainerEvent>
 
     private String getClassTag() {
         return getKind().lowercaseName() + "_index_class";
+    }
+
+    public void flush() {
+        swapper.flush();
     }
 
     public void modifyMap(final TObjectLongMap<String> modMap) {

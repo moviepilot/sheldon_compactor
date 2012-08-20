@@ -29,6 +29,9 @@ public class IndexEntry {
     public BatchInserterIndex index;
     public TMap<String, Object> props;
 
+    public int numIndex  = 0;
+    public boolean flush = false;
+
     public IndexEntry(final Config config) {
         props = new THashMap<String, Object>(config.getNumIndexProps());
     }
@@ -39,12 +42,17 @@ public class IndexEntry {
 
         mode.write(index, id, props);
 
+        if (flush)
+            index.flush();
+
         return true;
     }
 
     public void clear() {
-        mode  = Mode.ADD;
-        index = null;
+        mode     = Mode.ADD;
+        index    = null;
+        numIndex = 0;
+        flush    = false;
         props.clear();
     }
 }

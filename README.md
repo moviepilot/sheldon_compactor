@@ -92,3 +92,5 @@ Tuning
 ** --num-props
 ** --num-index-entries
 ** --num-index-props
+** --num-index-writers
+** --index-batch-size

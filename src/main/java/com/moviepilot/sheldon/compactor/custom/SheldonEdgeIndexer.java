@@ -3,9 +3,11 @@ package com.moviepilot.sheldon.compactor.custom;
 import com.moviepilot.sheldon.compactor.config.Config;
 import com.moviepilot.sheldon.compactor.event.EdgeEvent;
 import com.moviepilot.sheldon.compactor.event.IndexEntry;
+import com.moviepilot.sheldon.compactor.event.IndexSwapper;
 import com.moviepilot.sheldon.compactor.handler.EdgeIndexer;
 import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.unsafe.batchinsert.BatchInserterIndex;
+import org.neo4j.unsafe.batchinsert.BatchInserterIndexProvider;
 
 /**
  * @author stefanp
@@ -14,26 +16,14 @@ import org.neo4j.unsafe.batchinsert.BatchInserterIndex;
 @SuppressWarnings("UnusedDeclaration")
 public class SheldonEdgeIndexer extends SheldonIndexer<EdgeEvent> implements EdgeIndexer {
 
-    private  BatchInserterIndex edgeIndex;
-
-    @Override
     public void setup(final Config config) {
         super.setup(config);
-        edgeIndex =
-            config.getTargetIndexProvider().relationshipIndex("sheldon_connection", MapUtil.stringMap("type", "exact"));
-    }
-
-    protected void setupEntry(final IndexEntry indexEntry) {
-        if (indexEntry.index == null)
-            indexEntry.index = edgeIndex;
-        else {
-            if (indexEntry.index != edgeIndex)
-                throw new IllegalStateException("Invalid index entry");
-        }
-    }
-
-    public void flush() {
-        edgeIndex.flush();
+        swapper = new IndexSwapper(config) {
+            public BatchInserterIndex makeNew() {
+                final BatchInserterIndexProvider indexProvider = config.getTargetIndexProvider();
+                return indexProvider.relationshipIndex("sheldon_connection", MapUtil.stringMap("type", "exact"));
+            }
+        };
     }
 
     public final Kind getKind() {

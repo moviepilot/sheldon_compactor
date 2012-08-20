@@ -11,8 +11,12 @@ import org.neo4j.unsafe.batchinsert.BatchInserterIndexProvider;
  */
 public interface Config {
     public int getRingSize();
+
     public int getIndexFlushMinInterval();
     public int getIndexFlushMaxInterval();
+
+    public int getNumIndexWriters();
+    public int getIndexBatchSize();
 
     public BatchInserter getTargetDatabase();
     public BatchInserterIndexProvider getTargetIndexProvider();
