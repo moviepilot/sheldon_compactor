@@ -27,7 +27,18 @@ public abstract class SheldonIndexer<E extends PropertyContainerEvent>
         this.config = config;
     }
 
-    public void onEvent(final E event, final long sequence, final boolean endOfBatch) throws Exception {
+    public final void onEvent(E event, long sequence, boolean endOfBatch) throws Exception {
+        try {
+            onEvent_(event, sequence, endOfBatch);
+        }
+        catch (Exception e) {
+            System.err.println("Error in " + getClass());
+            Toolbox.printException(e);
+            throw e;
+        }
+    }
+
+    public void onEvent_(final E event, final long sequence, final boolean endOfBatch) throws Exception {
         if (event.isOk() && (event.action != Action.DELETE)) {
             final String clazz          = getClassPropertyOf(event);
             final IndexEntry indexEntry = event.indexEntries[0];

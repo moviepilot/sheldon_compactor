@@ -232,7 +232,7 @@ public final class Compactor {
             super(Compactor.this.modMap);
         }
 
-        public void onEvent(NodeEvent event, long sequence, boolean endOfBatch) throws Exception {
+        public void onEvent_(NodeEvent event, long sequence, boolean endOfBatch) throws Exception {
             if (event.isOk()) {
                 try {
                     switch (event.action) {
@@ -275,7 +275,7 @@ public final class Compactor {
             super(Compactor.this.modMap);
         }
 
-        public void onEvent(EdgeEvent event, long sequence, boolean endOfBatch) throws Exception {
+        public void onEvent_(EdgeEvent event, long sequence, boolean endOfBatch) throws Exception {
             if (event.isOk()) {
                 try {
                     switch (event.action) {

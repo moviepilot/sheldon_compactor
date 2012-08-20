@@ -25,7 +25,7 @@ public final class IndexWriter<E extends PropertyContainerEvent> extends Abstrac
         this.tag     = "index_writer_" + indexId + "_flush";
     }
 
-    public void onEvent(E event, long sequence, boolean endOfBatch) throws Exception {
+    public void onEvent_(E event, long sequence, boolean endOfBatch) throws Exception {
         if (event.isOk() && (event.action != DELETE)) {
             for (final IndexEntry entry : event.indexEntries)
                 if (entry.numIndex == indexId) {

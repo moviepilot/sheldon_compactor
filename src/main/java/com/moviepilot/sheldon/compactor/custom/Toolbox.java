@@ -43,4 +43,16 @@ public class Toolbox {
             throw new IllegalArgumentException("Can't convert to int: too big");
         return (int) value;
     }
+
+    // FIXME: This will loop if there are cyclic causes
+    public static void printException(final Throwable e) {
+        System.err.println(e.getMessage());
+        for (final StackTraceElement elem : e.getStackTrace()) {
+            System.err.println(elem);
+        }
+        if (e.getCause() != null) {
+            System.err.println("Caused by:");
+            printException(e.getCause());
+        }
+    }
 }

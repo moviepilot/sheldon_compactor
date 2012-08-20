@@ -36,13 +36,12 @@ public abstract class IndexSwapper {
             indices[i] = makeNew();
             counts[i]  = 0L;
         }
-
     }
 
     public void onEntry(final IndexEntry entry, final long sequence, final boolean endOfBatch) {
         entry.numIndex     = (int) ((sequence / batchSize) % indices.length);
         entry.index        = indices[entry.numIndex];
-        final long step    = counts[entry.numIndex] % batchSize;
+        final long step    = counts[entry.numIndex];
         if ( ((step >= minIndex) && endOfBatch) || (step >= maxIndex) ) {
             entry.flush            = true;
             counts[entry.numIndex] = 0;
