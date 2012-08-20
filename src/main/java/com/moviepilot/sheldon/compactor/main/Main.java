@@ -80,6 +80,12 @@ public final class Main {
     private Map<String, String> props = new THashMap<String, String>(1);
 
 
+    @Parameter(names = "--append", description = "Append to existing target database")
+    private boolean appendMode = false;
+
+    @Parameter(names = "--ring-size-info", description = "Print size information about the allocated ring")
+    private boolean ringSizeInfo = false;
+
     @Parameter(names = "--node-indexer", description = "Node indexer class name",
             converter = NodeIndexerConverter.class)
     private NodeIndexer optNodeIndexer = null;
@@ -176,7 +182,7 @@ public final class Main {
         if (!sourceStoreDir.exists())
             throw new IllegalArgumentException("Source Database does not exist " + sourceStoreDir);
 
-        if (targetStoreDir.exists())
+        if (!appendMode && targetStoreDir.exists())
             throw new IllegalArgumentException("Target Directory already exists " + targetStoreDir);
 
         assert(indexFlushMinInterval >= 0);
@@ -270,6 +276,10 @@ public final class Main {
                     case EDGE: return getDotEdges();
                     default: return getDotOk();
                 }
+            }
+
+            public boolean isPrintRingSizeInfo() {
+                return ringSizeInfo;
             }
         };
     }

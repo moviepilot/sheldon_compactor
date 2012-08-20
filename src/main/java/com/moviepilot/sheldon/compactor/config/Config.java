@@ -38,4 +38,6 @@ public interface Config {
     public long getDotOk();
 
     public long getDotKind(final PropertyContainerEventHandler.Kind kind);
+
+    public boolean isPrintRingSizeInfo();
 }

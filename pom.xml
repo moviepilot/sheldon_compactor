@@ -64,6 +64,11 @@
             <artifactId>jcommander</artifactId>
             <version>1.29</version>
         </dependency>
+        <dependency>
+            <groupId>com.carrotsearch</groupId>
+            <artifactId>java-sizeof</artifactId>
+            <version>0.0.3</version>
+        </dependency>
     </dependencies>
 
     <build>

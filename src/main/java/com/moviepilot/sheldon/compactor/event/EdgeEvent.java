@@ -51,7 +51,6 @@ public final class EdgeEvent extends PropertyContainerEvent {
             super(config);
         }
 
-        @Override
         public EdgeEvent newInstance() {
             return new EdgeEvent(config);
         }

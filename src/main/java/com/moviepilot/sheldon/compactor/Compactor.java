@@ -1,5 +1,6 @@
 package com.moviepilot.sheldon.compactor;
 
+import com.carrotsearch.sizeof.RamUsageEstimator;
 import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.EventHandlerGroup;
@@ -154,7 +155,10 @@ public final class Compactor {
                 final I optIndexer,
                 final PropertyCleaner propertyCleaner) {
 
-            final Disruptor<E> disruptor = new Disruptor<E>(makeEventFactory(), config.getRingSize(), executorService);
+            final EventFactory<E> eventFactory = makeEventFactory();
+            final Disruptor<E> disruptor = new Disruptor<E>(eventFactory, config.getRingSize(), executorService);
+
+            printRingSizeInfo(eventFactory, disruptor);
 
             EventHandlerGroup<E> handlerGroup;
             writer = makeWriter();
@@ -174,6 +178,20 @@ public final class Compactor {
 
             return disruptor;
 
+        }
+
+        private void printRingSizeInfo(EventFactory<E> eventFactory, Disruptor<E> disruptor) {
+            if (config.isPrintRingSizeInfo()) {
+                System.out.println("!! Ring buffer allocation for data of kind " + kind.name());
+                System.out.println("!! Shallow event size: " +
+                        RamUsageEstimator.humanReadableUnits(RamUsageEstimator.shallowSizeOf(eventFactory.newInstance())));
+                System.out.println("!! Full event size: " + RamUsageEstimator.humanSizeOf(eventFactory.newInstance()));
+                System.out.println("!! RingBuffer size: " + RamUsageEstimator.humanSizeOf(disruptor.getRingBuffer()));
+                System.out.println("!! Ring size as configured: " + config.getRingSize());
+                System.out.println("!! Ring size chosen by disruptor: " + disruptor.getRingBuffer().getBufferSize());
+                System.out.println("!! Min flush each: " + config.getIndexFlushMinInterval());
+                System.out.println("!! Max flush each: " + config.getIndexFlushMaxInterval());
+            }
         }
 
         private void setupModMap(PropertyContainerEventHandler<E> optHandler) {

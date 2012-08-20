@@ -49,9 +49,11 @@ How to influence what gets done how
 
 * Edit `src/main/java/com/moviepilot/sheldon/compactor/config/Defaults.java` to change global default parameters
 * Edit `src/main/java/com/moviepilot/sheldon/compactor/main/Main.java` to change startup, arguments and db setup
+  (look here for hidden options, too)
 * Edit `src/main/java/com/moviepilot/sheldon/compactor/Compactor.java` to change the general workflow of node and edge
   processing
 * Edit the pre-processors and indexers as required
+
 
 
 Versions
@@ -67,6 +69,8 @@ Dependencies
 * neo4j
 * GNU Trove collection classes for speedy maps
 * disruptor
+* java-sizeof
+* snakeyaml
 
 
 Caveats
@@ -76,3 +80,15 @@ Almost no tests. Written in an emergency. Turned out to work quite nicely.
 
 Released so you may use it in case you need something like this.
 
+
+Tuning
+------
+
+* Use --ring-size-info to see stats about the size of the allocated ring
+* Aim to keep the ring in L3 cache of your cpu by setting
+** --ring-size
+** --index-flush-min-count
+** --index-flush-max-count
+** --num-props
+** --num-index-entries
+** --num-index-props

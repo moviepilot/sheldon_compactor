@@ -23,7 +23,6 @@ public final class NodeEvent extends PropertyContainerEvent {
             super(config);
         }
 
-        @Override
         public NodeEvent newInstance() {
             return new NodeEvent(config);
         }
