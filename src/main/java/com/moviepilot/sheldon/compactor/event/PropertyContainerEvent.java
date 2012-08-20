@@ -115,9 +115,16 @@ public class PropertyContainerEvent {
                         .append(", action=").append(strWrap(action));
         }
         else {
-            printWriter.append(", failure=").append(strWrap(failure));
+            printWriter.append(", failure=").append(failure.toString());
             printWriter.append(", trace=\n");
-            failure.printStackTrace(printWriter);
+            for (final StackTraceElement elem : failure.getStackTrace())
+                printWriter.append(elem.toString());
+            final Throwable cause = failure.getCause();
+            printWriter.append(", cause=").append(cause.toString());
+            printWriter.append(", cause_trace=\n");
+            for (final StackTraceElement elem : cause.getStackTrace())
+                printWriter.append(elem.toString());
+
         }
         printWriter.append("}");
         return stringWriter.toString();
