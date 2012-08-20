@@ -17,12 +17,12 @@ public class Defaults {
     /**
      * Number of events that have to be processed before flushing the index
      */
-    public static final int INDEX_FLUSH_MIN_INTERVAL = 14;
+    public static final int INDEX_FLUSH_MIN_INTERVAL = 12;
 
     /**
      * Number of events that may get processed before the index must be flushed
      */
-    public static final int INDEX_FLUSH_MAX_INTERVAL = 16;
+    public static final int INDEX_FLUSH_MAX_INTERVAL = 14;
 
     /**
      * Default number of counts expected to be used by a Progressor

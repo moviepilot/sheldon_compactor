@@ -35,6 +35,7 @@ import static com.moviepilot.sheldon.compactor.handler.PropertyContainerEventHan
  * @author stefanp
  * @since 03.08.12
  */
+@SuppressWarnings("FieldCanBeLocal")
 public final class Main {
 
     public enum Mode {
@@ -77,7 +78,6 @@ public final class Main {
     @Parameter(names = "--config", description = "Defaults .properties or .yaml file path",
             converter = PropsConverter.class)
     private Map<String, String> props = new THashMap<String, String>(1);
-
 
     @Parameter(names = "--append", description = "Append to existing target database")
     private boolean appendMode = false;
@@ -255,11 +255,11 @@ public final class Main {
             }
 
             public int getNumExtraNodeThreads() {
-                return (optNodeEventHandler == null ? 0 : 1) + (optNodeIndexer == null ? 0 : 2 + getNumIndexWriters());
+                return (optNodeEventHandler == null ? 0 : 1) + (optNodeIndexer == null ? 0 : 1 + getNumIndexWriters());
             }
 
             public int getNumExtraEdgeThreads() {
-                return (optEdgeEventHandler == null ? 0 : 1) + (optEdgeIndexer == null ? 0 : 2 + getNumIndexWriters());
+                return (optEdgeEventHandler == null ? 0 : 1) + (optEdgeIndexer == null ? 0 : 1 + getNumIndexWriters());
             }
 
             public int getNumIndexEntries() {

@@ -43,6 +43,9 @@ public class GlopsCompactorBuilder implements CompactorBuilder {
 
         modMap.put("clean_ok", config.getDotOk());
 
+        for (int i = 0; i < config.getNumIndexWriters(); i++)
+            modMap.put("index_writer_" + i + "_flush", 10);
+
         // Iterators for input
         final PropertyContainerEventProducer<NodeEvent> nodeProducer = new GlopsNodeEventProducer(config, sourceDb);
         final PropertyContainerEventProducer<EdgeEvent> edgeProducer = new GlopsEdgeEventProducer(config, sourceDb);

@@ -193,10 +193,10 @@ public final class Compactor {
                 System.out.println("!! RingBuffer size: " + RamUsageEstimator.humanSizeOf(disruptor.getRingBuffer()));
                 System.out.println("!! Ring size as configured: " + config.getRingSize());
                 System.out.println("!! Ring size chosen by disruptor: " + disruptor.getRingBuffer().getBufferSize());
-                System.out.println("!! Min flush each: " + config.getIndexFlushMinInterval());
-                System.out.println("!! Max flush each: " + config.getIndexFlushMaxInterval());
+                System.out.println("!! Min index flush each: " + config.getIndexFlushMinInterval());
+                System.out.println("!! Max index flush each: " + config.getIndexFlushMaxInterval());
                 System.out.println("!! Batch size: " + config.getIndexBatchSize());
-                System.out.println("!! Num indices: " + config.getNumIndexWriters());
+                System.out.println("!! Num index writers: " + config.getNumIndexWriters());
             }
         }
 
