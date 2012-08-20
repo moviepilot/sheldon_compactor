@@ -42,9 +42,6 @@ public class IndexEntry {
 
         mode.write(index, id, props);
 
-        if (flush)
-            index.flush();
-
         return true;
     }
 

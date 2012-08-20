@@ -3,6 +3,10 @@ package com.moviepilot.sheldon.compactor.handler;
 import com.moviepilot.sheldon.compactor.config.Config;
 import com.moviepilot.sheldon.compactor.event.IndexEntry;
 import com.moviepilot.sheldon.compactor.event.PropertyContainerEvent;
+import org.neo4j.unsafe.batchinsert.BatchInserterIndex;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 import static com.moviepilot.sheldon.compactor.event.PropertyContainerEvent.Action.DELETE;
 
@@ -17,20 +21,36 @@ public final class IndexWriter<E extends PropertyContainerEvent> extends Abstrac
     private final Kind kind;
     private final int indexId;
     private final String tag;
+    private final ExecutorService executor;
 
-    public IndexWriter(final Config config, final Kind kind, final int indexId) {
+    private Future<?> flusher;
+
+    public IndexWriter(final Config config, final Kind kind, ExecutorService executorService, final int indexId) {
         super(config.getModMap());
-        this.kind    = kind;
-        this.indexId = indexId;
-        this.tag     = "index_writer_" + indexId + "_flush";
+        this.kind     = kind;
+        this.indexId  = indexId;
+        this.executor = executorService;
+        this.tag      = "index_writer_" + indexId + "_flush";
     }
 
-    public void onEvent_(E event, long sequence, boolean endOfBatch) throws Exception {
+    public void onEvent_(final E event, final long sequence, final boolean endOfBatch) throws Exception {
         if (event.isOk() && (event.action != DELETE)) {
             for (final IndexEntry entry : event.indexEntries)
                 if (entry.numIndex == indexId) {
-                    if (entry.write(event.id) && (entry.flush))
-                        getProgressor().tick(tag);
+                    if (entry.write(event.id)) {
+                        if (entry.flush) {
+                            if (flusher != null) {
+                                flusher.get();
+                                flusher = null;
+                            }
+                            final BatchInserterIndex index = entry.index;
+                            flusher = executor.submit(new Runnable() {
+                                public void run() {
+                                    index.flush();
+                                }
+                            });
+                        }
+                    }
                 }
         }
     }

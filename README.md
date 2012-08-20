@@ -85,7 +85,6 @@ Tuning
 ------
 
 * Use --ring-size-info to see stats about the size of the allocated ring
-* Aim to keep the ring in L3 cache of your cpu by setting
 ** --ring-size
 ** --index-flush-min-count
 ** --index-flush-max-count
@@ -94,3 +93,9 @@ Tuning
 ** --num-index-props
 ** --num-index-writers
 ** --index-batch-size
+
+
+mp.com users
+------------
+
+* --num-index-writers 8
