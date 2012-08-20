@@ -173,7 +173,7 @@ public final class Compactor {
             if (optIndexer != null) {
                 handlerGroup = handlerGroup.then(optIndexer);
                 indexWriters = new IndexWriter[config.getNumIndexWriters()];
-                for (int i = 0; i < 0; i++)
+                for (int i = 0; i < indexWriters.length; i++)
                     indexWriters[i] = new IndexWriter<E>(config, kind, i);
                 handlerGroup = handlerGroup.then(indexWriters);
             }
