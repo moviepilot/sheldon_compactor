@@ -1,7 +1,10 @@
 package com.moviepilot.sheldon.compactor;
 
 import com.carrotsearch.sizeof.RamUsageEstimator;
+import com.lmax.disruptor.BusySpinWaitStrategy;
 import com.lmax.disruptor.EventFactory;
+import com.lmax.disruptor.RingBuffer;
+import com.lmax.disruptor.SingleThreadedClaimStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.EventHandlerGroup;
 import com.moviepilot.sheldon.compactor.config.Config;
@@ -131,7 +134,7 @@ public final class Compactor {
             final Disruptor<E> disruptor             = newDisruptor(optHandler, optIndexer, propertyCleaner);
 
             // run disruptor
-            producer.run(disruptor, executorService, copyingProgressor);
+            producer.run(disruptor, Executors.newSingleThreadExecutor(), copyingProgressor);
 
             if (optIndexer != null) {
                 // wait for pending submitted flushes from indexWriters
@@ -164,7 +167,9 @@ public final class Compactor {
                 final PropertyCleaner propertyCleaner) {
 
             final EventFactory<E> eventFactory = makeEventFactory();
-            final Disruptor<E> disruptor = new Disruptor<E>(eventFactory, config.getRingSize(), executorService);
+            final int ringSize = config.getRingSize();
+            final Disruptor<E> disruptor = new Disruptor<E>(eventFactory, executorService,
+                    new SingleThreadedClaimStrategy(ringSize), new BusySpinWaitStrategy());
 
             printRingSizeInfo(eventFactory, disruptor);
 

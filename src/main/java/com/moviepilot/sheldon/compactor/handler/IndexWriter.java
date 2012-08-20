@@ -26,7 +26,7 @@ public final class IndexWriter<E extends PropertyContainerEvent> extends Abstrac
 
     private Future<?> flusher;
 
-    public IndexWriter(final Config config, final Kind kind, ExecutorService executorService, final int indexId) {
+    public IndexWriter(final Config config, final Kind kind, final ExecutorService executorService, final int indexId) {
         super(config.getModMap());
         this.kind     = kind;
         this.indexId  = indexId;
@@ -42,7 +42,6 @@ public final class IndexWriter<E extends PropertyContainerEvent> extends Abstrac
                         if (entry.flush) {
                             waitFlush();
                             submitNewFlush(entry.index);
-                            getProgressor().tick(tag);
                         }
                     }
                 }
@@ -59,23 +58,13 @@ public final class IndexWriter<E extends PropertyContainerEvent> extends Abstrac
     }
 
     public void waitFlush() {
-        if (flusher != null)
-            try {
-                while(true) {
-                    try {
-                        flusher.get();
-                        return;
-                    } catch (InterruptedException e) {
-                        // intentionally
-                    }
-                }
+        if (flusher != null) {
+            while(! flusher.isDone()) {
+                Thread.yield();
             }
-            catch (ExecutionException e) {
-                throw new RuntimeException(e);
-            }
-            finally {
-                flusher = null;
-            }
+            flusher = null;
+            getProgressor().tick(tag);
+        }
     }
 
     public Kind getKind() {

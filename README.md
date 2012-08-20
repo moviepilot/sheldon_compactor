@@ -98,4 +98,4 @@ Tuning
 mp.com users
 ------------
 
-* --num-index-writers 8
+* --num-index-writers 2

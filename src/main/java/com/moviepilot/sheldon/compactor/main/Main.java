@@ -255,13 +255,11 @@ public final class Main {
             }
 
             public int getNumExtraNodeThreads() {
-                return (optNodeEventHandler == null ? 0 : 1)
-                     + (optNodeIndexer == null ? 0 : 1 + (2*getNumIndexWriters()));
+                return (optNodeEventHandler == null ? 0 : 1) + (optNodeIndexer == null ? 0 : 1 + getNumIndexWriters());
             }
 
             public int getNumExtraEdgeThreads() {
-                return (optEdgeEventHandler == null ? 0 : 1)
-                     + (optEdgeIndexer == null ? 0 : 1 + (2*getNumIndexWriters()));
+                return (optEdgeEventHandler == null ? 0 : 1) + (optEdgeIndexer == null ? 0 : 1 + getNumIndexWriters());
             }
 
             public int getNumIndexEntries() {
