@@ -27,7 +27,7 @@ public abstract class SheldonIndexer<E extends PropertyContainerEvent>
         this.config = config;
     }
 
-    public final void onEvent(E event, long sequence, boolean endOfBatch) throws Exception {
+    public final void onEvent(final E event, final long sequence, final boolean endOfBatch) throws Exception {
         try {
             onEvent_(event, sequence, endOfBatch);
         }

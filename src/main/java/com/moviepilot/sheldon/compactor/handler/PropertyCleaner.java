@@ -1,6 +1,7 @@
 package com.moviepilot.sheldon.compactor.handler;
 
 import com.lmax.disruptor.EventHandler;
+import com.moviepilot.sheldon.compactor.custom.Toolbox;
 import com.moviepilot.sheldon.compactor.event.PropertyContainerEvent;
 import com.moviepilot.sheldon.compactor.util.ProgressReporter;
 import gnu.trove.map.TObjectLongMap;
@@ -19,8 +20,18 @@ public class PropertyCleaner<E extends PropertyContainerEvent>
         super(modMap);
     }
 
-    @Override
-    public void onEvent(E event, long sequence, boolean endOfBatch) throws Exception {
+    public final void onEvent(final E event, final long sequence, final boolean endOfBatch) throws Exception {
+        try {
+            onEvent_(event, sequence, endOfBatch);
+        }
+        catch (Exception e) {
+            System.err.println("Error in " + getClass());
+            Toolbox.printException(e);
+            throw e;
+        }
+    }
+
+    public void onEvent_(final E event, final long sequence, final boolean endOfBatch) throws Exception {
         event.clear(getProgressor());
     }
 }

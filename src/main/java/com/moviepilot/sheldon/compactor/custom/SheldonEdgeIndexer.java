@@ -18,10 +18,13 @@ public class SheldonEdgeIndexer extends SheldonIndexer<EdgeEvent> implements Edg
 
     public void setup(final Config config) {
         super.setup(config);
-        swapper = new IndexSwapper(config) {
+        this.swapper = new IndexSwapper(config) {
             public BatchInserterIndex makeNew() {
                 final BatchInserterIndexProvider indexProvider = config.getTargetIndexProvider();
-                return indexProvider.relationshipIndex("sheldon_connection", MapUtil.stringMap("type", "exact"));
+                final BatchInserterIndex index =
+                        indexProvider.relationshipIndex("sheldon_connection", MapUtil.stringMap("type", "exact"));
+                assert index != null;
+                return index;
             }
         };
     }

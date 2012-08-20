@@ -15,17 +15,24 @@ public abstract class SheldonPreprocessor<E extends PropertyContainerEvent>
     private Progressor progressor;
 
     public final void onEvent(E event, long sequence, boolean endOfBatch) throws Exception {
-        if (event.isOk()) {
-            if (event.props.containsKey(SheldonConstants.EXTERNAL_ID_KEY)) {
-                final Object value  = event.props.get(SheldonConstants.EXTERNAL_ID_KEY);
-                final Long newValue = value instanceof Long ? ((Long)value) : Long.parseLong(value.toString());
-                event.props.put(SheldonConstants.EXTERNAL_ID_KEY, newValue);
+        try {
+            if (event.isOk()) {
+                if (event.props.containsKey(SheldonConstants.EXTERNAL_ID_KEY)) {
+                    final Object value  = event.props.get(SheldonConstants.EXTERNAL_ID_KEY);
+                    final Long newValue = value instanceof Long ? ((Long)value) : Long.parseLong(value.toString());
+                    event.props.put(SheldonConstants.EXTERNAL_ID_KEY, newValue);
+                }
+                onOkEvent(event, sequence, endOfBatch);
             }
-            onOkEvent(event, sequence, endOfBatch);
+        }
+        catch (Exception e) {
+            System.err.println("Error in " + getClass());
+            Toolbox.printException(e);
+            throw e;
         }
     }
 
-    protected abstract void onOkEvent(E event, long sequence, boolean endOfBatch);
+    protected abstract void onOkEvent(E event, long sequence, boolean endOfBatch) throws Exception;
 
     public Progressor getProgressor() {
         return progressor;

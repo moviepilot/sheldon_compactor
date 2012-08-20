@@ -7,6 +7,7 @@ import com.moviepilot.sheldon.compactor.event.NodeEvent;
 import com.moviepilot.sheldon.compactor.handler.NodeIndexer;
 import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.unsafe.batchinsert.BatchInserterIndex;
+import org.neo4j.unsafe.batchinsert.BatchInserterIndexProvider;
 
 /**
  * @author stefanp
@@ -17,9 +18,13 @@ public class SheldonNodeIndexer extends SheldonIndexer<NodeEvent> implements Nod
 
     public void setup(final Config config) {
         super.setup(config);
-        swapper = new IndexSwapper(config) {
+        this.swapper = new IndexSwapper(config) {
             public BatchInserterIndex makeNew() {
-                return config.getTargetIndexProvider().nodeIndex("sheldon_node", MapUtil.stringMap("type", "exact"));
+                final BatchInserterIndexProvider indexProvider = config.getTargetIndexProvider();
+                final BatchInserterIndex index =
+                        indexProvider.nodeIndex("sheldon_node", MapUtil.stringMap("type", "exact"));
+                assert index != null;
+                return index;
             }
         };
     }
