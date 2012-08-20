@@ -5,6 +5,7 @@ import com.moviepilot.sheldon.compactor.event.IndexEntry;
 import com.moviepilot.sheldon.compactor.event.PropertyContainerEvent;
 import org.neo4j.unsafe.batchinsert.BatchInserterIndex;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -39,19 +40,40 @@ public final class IndexWriter<E extends PropertyContainerEvent> extends Abstrac
                 if (entry.numIndex == indexId) {
                     if (entry.write(event.id)) {
                         if (entry.flush) {
-                            if (flusher != null) {
-                                flusher.get();
-                                flusher = null;
-                            }
-                            final BatchInserterIndex index = entry.index;
-                            flusher = executor.submit(new Runnable() {
-                                public void run() {
-                                    index.flush();
-                                }
-                            });
+                            waitFlush();
+                            submitNewFlush(entry.index);
+                            getProgressor().tick(tag);
                         }
                     }
                 }
+        }
+    }
+
+
+    private void submitNewFlush(final BatchInserterIndex index) {
+        flusher = executor.submit(new Runnable() {
+            public void run() {
+                index.flush();
+            }
+        });
+    }
+
+    public void waitFlush() {
+        try {
+            while(true) {
+                try {
+                    flusher.get();
+                    return;
+                } catch (InterruptedException e) {
+                    // intentionally
+                }
+            }
+        }
+        catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+        finally {
+            flusher = null;
         }
     }
 

@@ -133,8 +133,15 @@ public final class Compactor {
             // run disruptor
             producer.run(disruptor, executorService, copyingProgressor);
 
-            if (optIndexer != null)
+            if (optIndexer != null) {
+                // wait for pending submitted flushes from indexWriters
+                for (final IndexWriter indexWriter : indexWriters)
+                    indexWriter.waitFlush();
+
+                // optIndexer should flush all indices here one last time
+                // as some indexWriter may not have committed some data
                 optIndexer.flush();
+            }
 
             // print progress count summary
             copyingProgressor.printAll();
