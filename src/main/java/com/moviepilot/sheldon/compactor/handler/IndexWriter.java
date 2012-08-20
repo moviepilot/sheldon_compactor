@@ -59,22 +59,23 @@ public final class IndexWriter<E extends PropertyContainerEvent> extends Abstrac
     }
 
     public void waitFlush() {
-        try {
-            while(true) {
-                try {
-                    flusher.get();
-                    return;
-                } catch (InterruptedException e) {
-                    // intentionally
+        if (flusher != null)
+            try {
+                while(true) {
+                    try {
+                        flusher.get();
+                        return;
+                    } catch (InterruptedException e) {
+                        // intentionally
+                    }
                 }
             }
-        }
-        catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        }
-        finally {
-            flusher = null;
-        }
+            catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+            finally {
+                flusher = null;
+            }
     }
 
     public Kind getKind() {
