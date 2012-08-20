@@ -111,15 +111,19 @@ public class PropertyContainerEvent {
                 .append("{").append("id=").append(Long.toString(id));
 
         if (failure == null) {
-            printWriter.append(", props=").append(props.toString())
-                        .append(", action=").append(action.toString());
+            printWriter.append(", props=").append(strWrap(props))
+                        .append(", action=").append(strWrap(action));
         }
         else {
-            printWriter.append(", failure=").append(failure.toString());
+            printWriter.append(", failure=").append(strWrap(failure));
             printWriter.append(", trace=\n");
             failure.printStackTrace(printWriter);
         }
         printWriter.append("}");
         return stringWriter.toString();
+    }
+
+    private CharSequence strWrap(final Object o) {
+        return o == null ? "null" : o.toString();
     }
 }

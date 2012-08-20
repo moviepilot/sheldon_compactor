@@ -32,7 +32,7 @@ public class Defaults {
     /**
      * Default number of properties on a node or an edge
      */
-    public static final int DEFAULT_NUM_PROPS = 38;
+    public static final int DEFAULT_NUM_PROPS = 32;
 
     /**
      * Default number of properties that are indexed
@@ -42,7 +42,7 @@ public class Defaults {
     /**
      * Default number of properties that are indexed
      */
-    public static final int DEFAULT_NUM_INDEX_PROPS =  4;
+    public static final int DEFAULT_NUM_INDEX_PROPS =  2;
 
     /**
      * Report progress every DOT_OK events cleared
