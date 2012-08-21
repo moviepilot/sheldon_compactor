@@ -16,6 +16,7 @@ public interface Config {
     public int getIndexFlushMaxInterval();
 
     public int getNumIndexWriters();
+    public int getNumIndexFlushers();
     public int getIndexBatchSize();
 
     public BatchInserter getTargetDatabase();

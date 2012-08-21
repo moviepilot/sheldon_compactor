@@ -3,7 +3,6 @@ package com.moviepilot.sheldon.compactor;
 import com.carrotsearch.sizeof.RamUsageEstimator;
 import com.lmax.disruptor.BusySpinWaitStrategy;
 import com.lmax.disruptor.EventFactory;
-import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.SingleThreadedClaimStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.EventHandlerGroup;
@@ -13,6 +12,7 @@ import com.moviepilot.sheldon.compactor.handler.*;
 import com.moviepilot.sheldon.compactor.producer.PropertyContainerEventProducer;
 import com.moviepilot.sheldon.compactor.util.Progressor;
 import com.moviepilot.sheldon.compactor.util.ProgressorHolder;
+import gnu.trove.map.TMap;
 import gnu.trove.map.TObjectLongMap;
 import org.neo4j.unsafe.batchinsert.BatchInserter;
 
@@ -68,10 +68,11 @@ public final class Compactor {
         }
     }
 
-    private void copyNodes(final NodeEventHandler optNodeHandler,
-                             final NodeIndexer optNodeIndexer) {
+    private void copyNodes(final NodeEventHandler optNodeHandler, final NodeIndexer optNodeIndexer) {
+        final int extraThreads = config.getNumExtraNodeThreads();
+        final int flusherThreads = optNodeIndexer == null ? 0 : config.getNumIndexFlushers();
         final Copier<NodeEvent, NodeEventHandler, NodeIndexer> copier =
-                new Copier<NodeEvent, NodeEventHandler, NodeIndexer>(NODE, config.getNumExtraNodeThreads()) {
+                new Copier<NodeEvent, NodeEventHandler, NodeIndexer>(NODE, extraThreads, flusherThreads) {
 
                     protected EventFactory<NodeEvent> makeEventFactory() {
                         return new NodeEvent.Factory(config);
@@ -85,10 +86,11 @@ public final class Compactor {
     }
 
 
-    private void copyEdges(final EdgeEventHandler optEdgeHandler,
-                             final EdgeIndexer optEdgeIndexer) {
+    private void copyEdges(final EdgeEventHandler optEdgeHandler, final EdgeIndexer optEdgeIndexer) {
+        final int extraThreads = config.getNumExtraEdgeThreads();
+        final int flusherThreads = optEdgeIndexer == null ? 0 : config.getNumIndexFlushers();
         final Copier<EdgeEvent, EdgeEventHandler, EdgeIndexer> copier =
-                new Copier<EdgeEvent, EdgeEventHandler, EdgeIndexer>(EDGE, config.getNumExtraEdgeThreads()) {
+                new Copier<EdgeEvent, EdgeEventHandler, EdgeIndexer>(EDGE, extraThreads, flusherThreads) {
 
                     protected EventFactory<EdgeEvent> makeEventFactory() {
                         return new EdgeEvent.Factory(config);
@@ -105,15 +107,18 @@ public final class Compactor {
             H extends PropertyContainerEventHandler<E>,
             I extends PropertyContainerEventHandler<E> & Indexer<E>> {
 
-        private final ExecutorService executorService;
+        private final ExecutorService mainExecutor;
+        private final ExecutorService flushExecutor;
+
         private final Kind kind;
 
         private AbstractPropertyContainerEventHandler<E> writer;
         private IndexWriter<E> indexWriters[];
 
-        Copier(final Kind kind, final int numExtraThreads) {
-            this.kind            = kind;
-            this.executorService = Executors.newFixedThreadPool(4 + numExtraThreads);
+        Copier(final Kind kind, final int numExtraThreads, int numFlushThreads) {
+            this.kind          = kind;
+            this.mainExecutor  = Executors.newFixedThreadPool(4 + numExtraThreads);
+            this.flushExecutor = numFlushThreads == 0 ? null : Executors.newFixedThreadPool(numFlushThreads);
         }
 
         void copy(final PropertyContainerEventProducer<E> producer, final H optHandler, final I optIndexer) {
@@ -134,15 +139,21 @@ public final class Compactor {
             final Disruptor<E> disruptor             = newDisruptor(optHandler, optIndexer, propertyCleaner);
 
             // run disruptor
-            producer.run(disruptor, Executors.newSingleThreadExecutor(), copyingProgressor);
+            producer.run(disruptor, copyingProgressor);
+
+            // shutdown disruptor threads
+            mainExecutor.shutdown();
 
             if (optIndexer != null) {
                 // wait for pending submitted flushes from indexWriters
                 for (final IndexWriter indexWriter : indexWriters)
                     indexWriter.waitFlush();
 
+                // shutdown executor for index flushers
+                flushExecutor.shutdown();
+
                 // optIndexer should flush all indices here one last time
-                // as some indexWriter may not have committed some data
+                // as some indices may hold data that was not committed by an indexWriter
                 optIndexer.flush();
             }
 
@@ -161,39 +172,34 @@ public final class Compactor {
 
 
         @SuppressWarnings({"unchecked"})
-        private Disruptor<E> newDisruptor(
-                final H optHandler,
-                final I optIndexer,
-                final PropertyCleaner propertyCleaner) {
-
+        private Disruptor<E> newDisruptor(final H optHandler, final I optIndexer, final PropertyCleaner propertyCleaner)
+        {
             final EventFactory<E> eventFactory = makeEventFactory();
             final int ringSize = config.getRingSize();
-            final Disruptor<E> disruptor = new Disruptor<E>(eventFactory, executorService,
-                    new SingleThreadedClaimStrategy(ringSize), new BusySpinWaitStrategy());
+            final SingleThreadedClaimStrategy claimStrategy = new SingleThreadedClaimStrategy(ringSize);
+            final BusySpinWaitStrategy waitStrategy = new BusySpinWaitStrategy();
+            final Disruptor<E> disruptor = new Disruptor<E>(eventFactory, mainExecutor, claimStrategy, waitStrategy);
 
             printRingSizeInfo(eventFactory, disruptor);
 
             EventHandlerGroup<E> handlerGroup;
             writer = makeWriter();
-            if (optHandler == null) {
+            if (optHandler == null)
                 handlerGroup = disruptor.handleEventsWith(writer);
-            }
-            else {
+            else
                 handlerGroup = disruptor.handleEventsWith(optHandler).then(writer);
-            }
 
             if (optIndexer != null) {
                 handlerGroup = handlerGroup.then(optIndexer);
                 indexWriters = new IndexWriter[config.getNumIndexWriters()];
                 for (int i = 0; i < indexWriters.length; i++)
-                    indexWriters[i] = new IndexWriter<E>(config, kind, executorService, i);
+                    indexWriters[i] = new IndexWriter<E>(config, kind, flushExecutor, i);
                 handlerGroup = handlerGroup.then(indexWriters);
             }
 
             handlerGroup.then(propertyCleaner);
 
             return disruptor;
-
         }
 
         private void printRingSizeInfo(EventFactory<E> eventFactory, Disruptor<E> disruptor) {
@@ -209,6 +215,7 @@ public final class Compactor {
                 System.out.println("!! Max index flush each: " + config.getIndexFlushMaxInterval());
                 System.out.println("!! Batch size: " + config.getIndexBatchSize());
                 System.out.println("!! Num index writers: " + config.getNumIndexWriters());
+                System.out.println("!! Num index flushers: " + config.getNumIndexFlushers());
             }
         }
 
@@ -292,12 +299,13 @@ public final class Compactor {
                 try {
                     switch (event.action) {
                         case CREATE:
-                            event.id = targetDb.createRelationship(event.srcId,  event.dstId, event.type,
-                                    event.getProps());
+                            final TMap<String,Object> createProps = event.getProps();
+                            event.id = targetDb.createRelationship(event.srcId,  event.dstId, event.type, createProps);
                             getProgressor().tick("edge_create");
                             break;
                         case UPDATE:
-                            targetDb.setRelationshipProperties(event.id, event.getProps());
+                            final TMap<String,Object> updateProps = event.getProps();
+                            targetDb.setRelationshipProperties(event.id, updateProps);
                             getProgressor().tick("edge_update");
                             break;
                         case DELETE:

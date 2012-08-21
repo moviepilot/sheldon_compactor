@@ -134,6 +134,9 @@ public final class Main {
     @Parameter(names = "--num-index-writers", description = "Number of index writer threads", hidden = true)
     private int numIndexWriters = 1;
 
+    @Parameter(names = "--num-index-flushers", description = "Number of index flushing threads", hidden = true)
+    private int numIndexFlushers = 1;
+
     @Parameter(names = "--index-batch-size",
             description = "log2 of batch size between index writer switch", hidden = true)
     private int indexBatchSize = indexFlushMinInterval;
@@ -194,7 +197,10 @@ public final class Main {
 
         assert(indexFlushMinInterval >= 0);
         assert(indexFlushMinInterval <= indexFlushMaxInterval);
-        assert(numIndexWriters >= 1);
+        if (optNodeIndexer != null || optEdgeIndexer != null) {
+            assert(numIndexWriters >= 1);
+            assert(numIndexFlushers >= 1);
+        }
         assert(indexBatchSize > 0);
 
         // batch inserter wont come up if this is true
@@ -220,6 +226,10 @@ public final class Main {
 
             public int getNumIndexWriters() {
                 return numIndexWriters;
+            }
+
+            public int getNumIndexFlushers() {
+                return numIndexFlushers;
             }
 
             public int getIndexBatchSize() {

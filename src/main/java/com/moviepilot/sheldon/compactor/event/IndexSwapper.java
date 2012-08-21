@@ -20,10 +20,8 @@ public abstract class IndexSwapper {
     public abstract BatchInserterIndex makeNew();
 
     public IndexSwapper(final Config config) {
-        this(config.getNumIndexWriters(),
-             config.getIndexBatchSize(),
-             config.getIndexFlushMinInterval(),
-             config.getIndexFlushMaxInterval());
+        this(config.getNumIndexWriters(), config.getIndexBatchSize(),
+             config.getIndexFlushMinInterval(), config.getIndexFlushMaxInterval());
     }
 
     public IndexSwapper(final int numIndices, final int batchSize, final long minIndex, final long maxIndex) {
@@ -39,16 +37,16 @@ public abstract class IndexSwapper {
     }
 
     public void onEntry(final IndexEntry entry, final long sequence, final boolean endOfBatch) {
-        entry.numIndex     = (int) ((sequence / batchSize) % indices.length);
-        entry.index        = indices[entry.numIndex];
-        final long step    = counts[entry.numIndex];
-        if ( ((step >= minIndex) && endOfBatch) || (step >= maxIndex) ) {
+        entry.writerId   = (int) ((sequence / batchSize) % indices.length);
+        entry.index      = indices[entry.writerId];
+        final long count = counts[entry.writerId];
+        if ( ((count >= minIndex) && endOfBatch) || (count >= maxIndex) ) {
             entry.flush            = true;
-            counts[entry.numIndex] = 0;
+            counts[entry.writerId] = 0;
         }
         else {
             entry.flush             = false;
-            counts[entry.numIndex] += 1;
+            counts[entry.writerId] += 1;
         }
     }
 

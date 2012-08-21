@@ -18,18 +18,18 @@ import static com.moviepilot.sheldon.compactor.event.PropertyContainerEvent.Acti
 public final class IndexWriter<E extends PropertyContainerEvent> extends AbstractPropertyContainerEventHandler<E> {
 
     private final Kind kind;
-    private final int indexId;
+    private final int writerId;
     private final String tag;
     private final ExecutorService executor;
 
     private Future<?> flusher;
 
-    public IndexWriter(final Config config, final Kind kind, final ExecutorService executorService, final int indexId) {
+    public IndexWriter(final Config config, final Kind kind, final ExecutorService flushExecutor, final int writerId) {
         super(config.getModMap());
         this.kind     = kind;
-        this.indexId  = indexId;
-        this.executor = executorService;
-        this.tag      = "index_writer_" + indexId + "_flush";
+        this.writerId = writerId;
+        this.executor = flushExecutor;
+        this.tag      = "index_writer_" + writerId + "_flush";
     }
 
     @SuppressWarnings("ForLoopReplaceableByForEach")
@@ -37,8 +37,8 @@ public final class IndexWriter<E extends PropertyContainerEvent> extends Abstrac
         if (event.isOk() && (event.action != DELETE)) {
             final IndexEntry[] indexEntries = event.indexEntries;
             for (int i = 0, indexEntriesLength = indexEntries.length; i < indexEntriesLength; i++) {
-                IndexEntry entry = indexEntries[i];
-                if (entry.numIndex == indexId) {
+                final IndexEntry entry = indexEntries[i];
+                if (entry.writerId == this.writerId) {
                     waitFlush();
                     if (entry.write(event.id) && entry.flush)
                         submitNewFlush(entry.index);
@@ -58,9 +58,8 @@ public final class IndexWriter<E extends PropertyContainerEvent> extends Abstrac
 
     public void waitFlush() {
         if (flusher != null) {
-            while(! flusher.isDone()) {
+            while(! flusher.isDone())
                 Thread.yield();
-            }
             flusher = null;
             getProgressor().tick(tag);
         }

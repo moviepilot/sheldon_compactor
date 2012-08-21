@@ -29,7 +29,7 @@ public class IndexEntry {
     public BatchInserterIndex index;
     public TMap<String, Object> props;
 
-    public int numIndex  = 0;
+    public int writerId = 0;
     public boolean flush = false;
 
     public IndexEntry(final Config config) {
@@ -48,7 +48,7 @@ public class IndexEntry {
     public void clear() {
         mode     = Mode.ADD;
         index    = null;
-        numIndex = 0;
+        writerId = 0;
         flush    = false;
         props.clear();
     }

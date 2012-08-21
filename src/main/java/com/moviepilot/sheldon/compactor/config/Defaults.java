@@ -12,17 +12,17 @@ public class Defaults {
     /**
      * Size of disruptor ring buffer used
      */
-    public static final int RING_SIZE = 16;
+    public static final int RING_SIZE = 18;
 
     /**
      * Number of events that have to be processed before flushing the index
      */
-    public static final int INDEX_FLUSH_MIN_INTERVAL = 12;
+    public static final int INDEX_FLUSH_MIN_INTERVAL = 14;
 
     /**
      * Number of events that may get processed before the index must be flushed
      */
-    public static final int INDEX_FLUSH_MAX_INTERVAL = 12;
+    public static final int INDEX_FLUSH_MAX_INTERVAL = 16;
 
     /**
      * Default number of counts expected to be used by a Progressor
@@ -32,7 +32,7 @@ public class Defaults {
     /**
      * Default number of properties on a node or an edge
      */
-    public static final int DEFAULT_NUM_PROPS = 32;
+    public static final int DEFAULT_NUM_PROPS = 42;
 
     /**
      * Default number of properties that are indexed
