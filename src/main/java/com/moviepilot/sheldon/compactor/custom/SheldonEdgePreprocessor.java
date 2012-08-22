@@ -38,7 +38,7 @@ public class SheldonEdgePreprocessor
     @SuppressWarnings("UnnecessaryReturnStatement")
     @Override
     protected void onOkEvent(EdgeEvent event, long sequence, boolean endOfBatch) {
-        final String typeName = event.type.name();
+        final String typeName = event.type;
         if (mergeEdge(event, typeName,
                 FEATURED_STORIES_SUBSCRIPTIONS_KEY, ALL_STORIES_SUBSCRIPTIONS_TYPE, subscriptionPairs))
             return;
@@ -62,7 +62,7 @@ public class SheldonEdgePreprocessor
         if (fromTypeName.equals(typeName)) {
             if (   (event.action != PropertyContainerEvent.Action.DELETE)
                 && Toolbox.isNewPair(seenPairs, event.srcId, event.dstId)) {
-                event.type = toType;
+                event.type = toType.name();
                 getProgressor().tick("convert_" + fromTypeName);
             }
             else {
