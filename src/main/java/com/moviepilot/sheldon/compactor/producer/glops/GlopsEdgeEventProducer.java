@@ -6,6 +6,7 @@ import com.moviepilot.sheldon.compactor.event.EdgeEvent;
 import com.moviepilot.sheldon.compactor.event.EdgeEventTranslator;
 import com.moviepilot.sheldon.compactor.producer.PropertyContainerEventProducer;
 import com.moviepilot.sheldon.compactor.util.Progressor;
+import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.neo4j.tooling.GlobalGraphOperations;
@@ -14,14 +15,10 @@ import org.neo4j.tooling.GlobalGraphOperations;
  * @author stefanp
  * @since 08.08.12
  */
-public class GlopsEdgeEventProducer extends PropertyContainerEventProducer<EdgeEvent> {
+public final class GlopsEdgeEventProducer extends GlopsEventProducer<EdgeEvent> {
 
-    protected final Config config;
-    protected final EmbeddedGraphDatabase src;
-
-    public GlopsEdgeEventProducer(final Config config, final EmbeddedGraphDatabase src) {
-        this.config = config;
-        this.src    = src;
+    public GlopsEdgeEventProducer(final Config config, final GraphDatabaseService src) {
+        super(config, src);
     }
 
     public void produce(final Disruptor<EdgeEvent> disruptor, final Progressor progressor) {

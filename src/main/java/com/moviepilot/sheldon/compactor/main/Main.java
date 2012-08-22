@@ -11,8 +11,10 @@ import com.moviepilot.sheldon.compactor.producer.glops.GlopsCompactorBuilder;
 import com.moviepilot.sheldon.compactor.util.Progressor;
 import gnu.trove.map.TObjectLongMap;
 import gnu.trove.map.hash.THashMap;
+import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
+import org.neo4j.kernel.EmbeddedReadOnlyGraphDatabase;
 import org.neo4j.tooling.GlobalGraphOperations;
 import org.neo4j.unsafe.batchinsert.BatchInserter;
 import org.neo4j.unsafe.batchinsert.BatchInserters;
@@ -318,7 +320,7 @@ public final class Main {
 
         public int run() {
             // Load sourceStoreDir database
-            final EmbeddedGraphDatabase sourceDb = new EmbeddedGraphDatabase(sourceStoreDir.getAbsolutePath(), props);
+            final GraphDatabaseService sourceDb = new EmbeddedReadOnlyGraphDatabase(sourceStoreDir.getAbsolutePath(), props);
             try {
                 // Build separate compactors to re-load the target db between stages
                 warmUp(sourceDb, Kind.NODE);
@@ -333,7 +335,7 @@ public final class Main {
         }
 
         @SuppressWarnings("WhileLoopReplaceableByForEach")
-        private void warmUp(final EmbeddedGraphDatabase sourceDb, final Kind kind) {
+        private void warmUp(final GraphDatabaseService sourceDb, final Kind kind) {
             final Iterable<? extends PropertyContainer> iterable;
 
             switch (kind) {

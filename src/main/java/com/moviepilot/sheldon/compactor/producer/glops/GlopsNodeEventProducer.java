@@ -6,6 +6,7 @@ import com.moviepilot.sheldon.compactor.event.NodeEvent;
 import com.moviepilot.sheldon.compactor.event.NodeEventTranslator;
 import com.moviepilot.sheldon.compactor.producer.PropertyContainerEventProducer;
 import com.moviepilot.sheldon.compactor.util.Progressor;
+import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 import org.neo4j.tooling.GlobalGraphOperations;
@@ -14,14 +15,10 @@ import org.neo4j.tooling.GlobalGraphOperations;
  * @author stefanp
  * @since 08.08.12
  */
-public class GlopsNodeEventProducer extends PropertyContainerEventProducer<NodeEvent> {
+public final class GlopsNodeEventProducer extends GlopsEventProducer<NodeEvent> {
 
-    protected final Config config;
-    protected final EmbeddedGraphDatabase src;
-
-    public GlopsNodeEventProducer(final Config config, final EmbeddedGraphDatabase src) {
-        this.config = config;
-        this.src    = src;
+    public GlopsNodeEventProducer(final Config config, final GraphDatabaseService src) {
+        super(config, src);
     }
 
     public void produce(final Disruptor<NodeEvent> disruptor, final Progressor progressor) {
