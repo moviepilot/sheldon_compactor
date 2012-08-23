@@ -75,6 +75,7 @@ public class SheldonEdgePreprocessor
     }
 
     public void modifyMap(TObjectLongMap<String> modMap) {
+        super.modifyMap(modMap);
         modMap.put("convert_" + FEATURED_STORIES_SUBSCRIPTIONS_KEY, 10000);
         modMap.put("ignore_" + FEATURED_STORIES_SUBSCRIPTIONS_KEY, 10000);
         modMap.put("ignore_" + ALL_STORIES_SUBSCRIPTIONS_KEY, 10000);
