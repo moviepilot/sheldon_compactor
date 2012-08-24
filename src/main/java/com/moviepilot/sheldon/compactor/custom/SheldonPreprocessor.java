@@ -31,7 +31,7 @@ public abstract class SheldonPreprocessor<E extends PropertyContainerEvent>
                 .appendLiteral('-')
                 .appendDayOfMonth(2)
                 .appendLiteral('T')
-                .appendClockhourOfDay(2)
+                .appendHourOfDay(2)
                 .appendLiteral(':')
                 .appendMinuteOfHour(2)
                 .appendLiteral(':')
