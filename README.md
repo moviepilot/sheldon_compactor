@@ -78,6 +78,8 @@ Caveats
 
 Almost no tests. Written in an emergency. Turned out to work quite nicely.
 
+Uses RelationshipType.name() and DynamicRelationshipType.withName() during compaction.
+
 Released so you may use it in case you need something like this.
 
 

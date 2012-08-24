@@ -1,6 +1,6 @@
 #!/bin/sh
 if [ -z "$COMPACTOR_OPTS" ]; then
-    COMPACTOR_OPTS='-Xmx22g -d64 -server -Djava.awt.headless=true -XX:+UseConcMarkSweepGC -XX:+AggressiveOpts'
+    COMPACTOR_OPTS='-Xmx28g -d64 -server -Djava.awt.headless=true -XX:+UseConcMarkSweepGC -XX:+AggressiveOpts'
 fi
 
 if [ ! -z "$ENABLE_YOURKIT" ]; then

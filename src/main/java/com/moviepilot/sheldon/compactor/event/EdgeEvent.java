@@ -15,7 +15,7 @@ public final class EdgeEvent extends PropertyContainerEvent {
 
     public long srcId;
     public long dstId;
-    public RelationshipType type;
+    public String type;
 
 
     public EdgeEvent(final Config config) {

@@ -7,6 +7,7 @@ import com.moviepilot.sheldon.compactor.event.EdgeEvent;
 import com.moviepilot.sheldon.compactor.event.NodeEvent;
 import com.moviepilot.sheldon.compactor.producer.PropertyContainerEventProducer;
 import gnu.trove.map.TObjectLongMap;
+import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
 
 /**
@@ -14,9 +15,9 @@ import org.neo4j.kernel.EmbeddedGraphDatabase;
  * @since 08.08.12
  */
 public class GlopsCompactorBuilder implements CompactorBuilder {
-    private final EmbeddedGraphDatabase sourceDb;
+    private final GraphDatabaseService sourceDb;
 
-    public GlopsCompactorBuilder(final EmbeddedGraphDatabase sourceDb) {
+    public GlopsCompactorBuilder(final GraphDatabaseService sourceDb) {
         this.sourceDb = sourceDb;
     }
 

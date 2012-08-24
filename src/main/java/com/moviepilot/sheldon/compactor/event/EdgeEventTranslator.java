@@ -26,7 +26,7 @@ public class EdgeEventTranslator extends PropertyContainerEventTranslator<Relati
         event.id     = rel.getId();
         event.srcId  = rel.getStartNode().getId();
         event.dstId  = rel.getEndNode().getId();
-        event.type   = rel.getType();
+        event.type   = rel.getType().name();
         putAllContainerProperties(rel, event.props);
     }
 }

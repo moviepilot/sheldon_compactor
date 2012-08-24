@@ -14,6 +14,8 @@ import com.moviepilot.sheldon.compactor.util.Progressor;
 import com.moviepilot.sheldon.compactor.util.ProgressorHolder;
 import gnu.trove.map.TMap;
 import gnu.trove.map.TObjectLongMap;
+import org.neo4j.graphdb.DynamicRelationshipType;
+import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.unsafe.batchinsert.BatchInserter;
 
 import java.util.concurrent.ExecutorService;
@@ -300,7 +302,8 @@ public final class Compactor {
                     switch (event.action) {
                         case CREATE:
                             final TMap<String,Object> createProps = event.getProps();
-                            event.id = targetDb.createRelationship(event.srcId,  event.dstId, event.type, createProps);
+                            final RelationshipType type = DynamicRelationshipType.withName(event.type);
+                            event.id = targetDb.createRelationship(event.srcId,  event.dstId, type, createProps);
                             getProgressor().tick("edge_create");
                             break;
                         case UPDATE:
