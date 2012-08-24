@@ -48,6 +48,7 @@ public abstract class SheldonPreprocessor<E extends PropertyContainerEvent>
                 }
                 convertTimestamp(event, SheldonConstants.CREATED_AT);
                 convertTimestamp(event, SheldonConstants.UPDATED_AT);
+                convertTimestamp(event, SheldonConstants.PUBLISHED_AT);
                 onOkEvent(event, sequence, endOfBatch);
             }
         }
@@ -95,5 +96,6 @@ public abstract class SheldonPreprocessor<E extends PropertyContainerEvent>
     public void modifyMap(TObjectLongMap<String> modMap) {
         modMap.put(SheldonConstants.CREATED_AT, 10000);
         modMap.put(SheldonConstants.UPDATED_AT, 10000);
+        modMap.put(SheldonConstants.PUBLISHED_AT, 10000);
     }
 }
