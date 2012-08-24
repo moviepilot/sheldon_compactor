@@ -10,6 +10,9 @@ import org.neo4j.unsafe.batchinsert.BatchInserterIndexProvider;
  * @since 09.08.12
  */
 public interface Config {
+    public boolean isCopyingNodes();
+    public boolean isCopyingEdges();
+
     public int getRingSize();
 
     public int getIndexFlushMinInterval();

@@ -142,6 +142,12 @@ public final class Main {
             description = "log2 of batch size between index writer switch", hidden = true)
     private int indexBatchSize = indexFlushMinInterval;
 
+    @Parameter(names = "--skip-nodes", description = "Do not process nodes")
+    private boolean skipNodes = false;
+
+    @Parameter(names = "--skip-edges", description = "Do not process edges")
+    private boolean skipEdges = false;
+
 
     @SuppressWarnings("FieldCanBeLocal")
     @Parameter(names = "--help", description = "Print usage information and exit", help = true)
@@ -213,6 +219,15 @@ public final class Main {
         final TObjectLongMap<String> modMap = Progressor.makeCountMap();
 
         return new Config() {
+            public boolean isCopyingNodes() {
+                return !skipNodes;
+            }
+
+            @Override
+            public boolean isCopyingEdges() {
+                return !skipEdges;
+            }
+
             public int getRingSize() {
                 return 1 << ringSize;
             }
