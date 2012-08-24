@@ -5,7 +5,6 @@ import com.moviepilot.sheldon.compactor.event.PropertyContainerEvent;
 import com.moviepilot.sheldon.compactor.handler.PropertyContainerEventHandler;
 import com.moviepilot.sheldon.compactor.util.Progressor;
 import com.moviepilot.sheldon.compactor.util.ProgressorHolder;
-import com.sun.servicetag.SystemEnvironment;
 import gnu.trove.map.TObjectLongMap;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
