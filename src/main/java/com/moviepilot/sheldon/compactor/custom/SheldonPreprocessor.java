@@ -1,5 +1,6 @@
 package com.moviepilot.sheldon.compactor.custom;
 
+import com.moviepilot.sheldon.compactor.ModMapModifier;
 import com.moviepilot.sheldon.compactor.event.PropertyContainerEvent;
 import com.moviepilot.sheldon.compactor.handler.PropertyContainerEventHandler;
 import com.moviepilot.sheldon.compactor.util.Progressor;
@@ -14,7 +15,7 @@ import org.joda.time.format.DateTimeFormatterBuilder;
  * @since 08.08.12
  */
 public abstract class SheldonPreprocessor<E extends PropertyContainerEvent>
-        implements PropertyContainerEventHandler<E>, ProgressorHolder {
+        implements PropertyContainerEventHandler<E>, ProgressorHolder, ModMapModifier {
 
     private Progressor progressor;
 
