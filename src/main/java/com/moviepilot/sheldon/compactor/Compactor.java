@@ -18,6 +18,7 @@ import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.unsafe.batchinsert.BatchInserter;
 
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -131,6 +132,10 @@ public final class Compactor {
             setupModMap(optHandler);
             setupModMap(optIndexer);
 
+            // Print modMap to be safe
+            for (final String key : modMap.keySet())
+                    System.out.println("Prints " + key + " if % " + modMap.get(key) + " == 0");
+
             // create progressors for various handlers
             final Progressor copyingProgressor  = new Progressor(modMap);
             final Progressor handlerProgressor  = setupOptProgressor(optHandler);
@@ -221,7 +226,7 @@ public final class Compactor {
             }
         }
 
-        private void setupModMap(PropertyContainerEventHandler<E> optHandler) {
+        private void setupModMap(final PropertyContainerEventHandler<E> optHandler) {
             if (optHandler != null && (optHandler instanceof ModMapModifier)) {
                 ((ModMapModifier)optHandler).modifyMap(modMap);
             }

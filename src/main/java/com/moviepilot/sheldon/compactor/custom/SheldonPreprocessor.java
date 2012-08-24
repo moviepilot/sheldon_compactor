@@ -38,7 +38,7 @@ public abstract class SheldonPreprocessor<E extends PropertyContainerEvent>
                 .appendTimeZoneOffset(null, true, 2, 2).toFormatter();
     }
 
-    public final void onEvent(E event, long sequence, boolean endOfBatch) throws Exception {
+    public final void onEvent(final E event, final long sequence, final boolean endOfBatch) throws Exception {
         try {
             if (event.isOk()) {
                 if (event.props.containsKey(SheldonConstants.EXTERNAL_ID_KEY)) {
@@ -89,13 +89,13 @@ public abstract class SheldonPreprocessor<E extends PropertyContainerEvent>
         return progressor;
     }
 
-    public void setProgressor(Progressor progressor) {
+    public void setProgressor(final Progressor progressor) {
         this.progressor = progressor;
     }
 
-    public void modifyMap(TObjectLongMap<String> modMap) {
-        modMap.put(SheldonConstants.CREATED_AT, 10000);
-        modMap.put(SheldonConstants.UPDATED_AT, 10000);
-        modMap.put(SheldonConstants.PUBLISHED_AT, 10000);
+    public void modifyMap(final TObjectLongMap<String> modMap) {
+        modMap.put(SheldonConstants.CREATED_AT, 20000);
+        modMap.put(SheldonConstants.UPDATED_AT, 20000);
+        modMap.put(SheldonConstants.PUBLISHED_AT, 20000);
     }
 }
