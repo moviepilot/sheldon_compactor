@@ -4,12 +4,9 @@ import com.moviepilot.sheldon.compactor.ModMapModifier;
 import com.moviepilot.sheldon.compactor.event.EdgeEvent;
 import com.moviepilot.sheldon.compactor.event.PropertyContainerEvent;
 import com.moviepilot.sheldon.compactor.handler.EdgeEventHandler;
-import com.moviepilot.sheldon.compactor.handler.PropertyContainerEventHandler;
 import gnu.trove.map.TObjectLongMap;
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
-import org.neo4j.graphdb.DynamicRelationshipType;
-import org.neo4j.graphdb.RelationshipType;
 
 /**
  * @author stefanp
@@ -26,21 +23,13 @@ public class SheldonEdgePreprocessor
     // public static final String ALL_STORIES_RELATED_TOS_KEY = "all_stories_related_tos";
     // public static final String FEATURED_STORIES_RELATED_TOS_KEY = "featured_stories_related_tos";
 
-    public static final DynamicRelationshipType ALL_STORIES_SUBSCRIPTIONS_TYPE
-            = DynamicRelationshipType.withName(ALL_STORIES_SUBSCRIPTIONS_KEY);
-
-    // public static final DynamicRelationshipType ALL_STORIES_RELATED_TOS_TYPE
-    //        = DynamicRelationshipType.withName(ALL_STORIES_RELATED_TOS_KEY);
-
     private TLongSet subscriptionPairs = new TLongHashSet();
     // private TLongSet relatedPairs      = new TLongHashSet();
 
     @SuppressWarnings("UnnecessaryReturnStatement")
     @Override
     protected void onOkEvent(EdgeEvent event, long sequence, boolean endOfBatch) {
-        final String typeName = event.type;
-        if (mergeEdge(event, typeName,
-                FEATURED_STORIES_SUBSCRIPTIONS_KEY, ALL_STORIES_SUBSCRIPTIONS_TYPE, subscriptionPairs))
+        if (mergeEdge(event, FEATURED_STORIES_SUBSCRIPTIONS_KEY, ALL_STORIES_SUBSCRIPTIONS_KEY, subscriptionPairs))
             return;
 
         // if (mergeEdge(event, typeName,
@@ -48,10 +37,11 @@ public class SheldonEdgePreprocessor
         //    return;
     }
 
-    private boolean mergeEdge(final EdgeEvent event, final String typeName,
-                              final String fromTypeName, final RelationshipType toType, final TLongSet seenPairs) {
+    private boolean mergeEdge(final EdgeEvent event,
+                              final String fromTypeName, final String toTypeName, final TLongSet seenPairs) {
 
-        final String toTypeName = toType.name();
+        final String typeName = event.type.name();
+
         if (toTypeName.equals(typeName)) {
             if (! Toolbox.isNewPair(seenPairs, event.srcId, event.dstId)) {
                 event.action = PropertyContainerEvent.Action.DELETE;
@@ -62,7 +52,7 @@ public class SheldonEdgePreprocessor
         if (fromTypeName.equals(typeName)) {
             if (   (event.action != PropertyContainerEvent.Action.DELETE)
                 && Toolbox.isNewPair(seenPairs, event.srcId, event.dstId)) {
-                event.type = toType.name();
+                event.type = EdgeEvent.TypeCache.getInstance().forName(toTypeName);
                 getProgressor().tick("convert_" + fromTypeName);
             }
             else {

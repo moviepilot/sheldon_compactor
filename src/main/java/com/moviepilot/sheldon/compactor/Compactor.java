@@ -307,8 +307,7 @@ public final class Compactor {
                     switch (event.action) {
                         case CREATE:
                             final TMap<String,Object> createProps = event.getProps();
-                            final RelationshipType type = DynamicRelationshipType.withName(event.type);
-                            event.id = targetDb.createRelationship(event.srcId,  event.dstId, type, createProps);
+                            event.id = targetDb.createRelationship(event.srcId,  event.dstId, event.type, createProps);
                             getProgressor().tick("edge_create");
                             break;
                         case UPDATE:

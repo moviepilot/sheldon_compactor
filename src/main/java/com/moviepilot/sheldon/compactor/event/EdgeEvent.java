@@ -1,9 +1,16 @@
 package com.moviepilot.sheldon.compactor.event;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.lmax.disruptor.EventFactory;
 import com.moviepilot.sheldon.compactor.config.Config;
 import com.moviepilot.sheldon.compactor.util.Progressor;
+import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.RelationshipType;
+
+import java.util.concurrent.ExecutionException;
 
 /**
  * EdgeEvent
@@ -15,7 +22,7 @@ public final class EdgeEvent extends PropertyContainerEvent {
 
     public long srcId;
     public long dstId;
-    public String type;
+    public RelationshipType type;
 
 
     public EdgeEvent(final Config config) {
@@ -53,6 +60,34 @@ public final class EdgeEvent extends PropertyContainerEvent {
 
         public EdgeEvent newInstance() {
             return new EdgeEvent(config);
+        }
+    }
+
+    public final static class TypeCache {
+        private final static TypeCache instance = new TypeCache();
+
+        private LoadingCache<String, RelationshipType> cache;
+
+        private TypeCache() {
+            cache = CacheBuilder.newBuilder().build(new CacheLoader<String, RelationshipType>() {
+                public RelationshipType load(final String s) throws Exception {
+                    if (s == null || s.length() == 0)
+                        throw new IllegalArgumentException();
+                    return DynamicRelationshipType.withName(s);
+                }
+            });
+        }
+
+        public static TypeCache getInstance() {
+            return instance;
+        }
+
+        public RelationshipType forName(final String name) {
+            try {
+                return cache.get(name);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e.getCause());
+            }
         }
     }
 }
